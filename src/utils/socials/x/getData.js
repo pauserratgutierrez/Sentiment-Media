@@ -17,6 +17,8 @@ export class x {
     } catch (err) {
       console.error(`Error getting post content for X -> ${username} - ${id}: ${err}`);
       return null;
+    } finally {
+      if (page) await page.close();
     }
   }
 
@@ -25,36 +27,38 @@ export class x {
 
     const { TWEET_POST, TWEET_TEXT, TWEET_PHOTO, TWEET_VIDEO } = this.selectors;
 
-    const text = await page.$eval(TWEET_POST, (el, tweetTextSelector, baseUrl) => {
+    try {
+      const text = await page.$eval(TWEET_POST, (el, tweetTextSelector, baseUrl) => {
       const tweetTextElement = el.querySelector(tweetTextSelector);
-      if (!tweetTextElement) return null;
-
-      // Extract text with links and replace img tags with their alt text (emojis)
-      const extractTextWithLinks = node => {
-        if (node.nodeType === Node.TEXT_NODE) return node.textContent;
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          if (node.tagName === 'A') {
-            const absoluteUrl = new URL(node.getAttribute('href'), baseUrl).href;
-            return `<a href="${absoluteUrl}">${node.textContent}</a>`;
+        if (!tweetTextElement) return null;
+  
+        // Extract text with links and replace img tags with their alt text (emojis)
+        const extractTextWithLinks = node => {
+          if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.tagName === 'A') {
+              const absoluteUrl = new URL(node.getAttribute('href'), baseUrl).href;
+              return `<a href="${absoluteUrl}">${node.textContent}</a>`;
+            }
+            if (node.tagName === 'IMG') {
+              return node.alt; // Replace image with its alt text (emoji)
+            }
+            return Array.from(node.childNodes).map(extractTextWithLinks).join('');
           }
-          if (node.tagName === 'IMG') {
-            return node.alt; // Replace image with its alt text (emoji)
-          }
-          return Array.from(node.childNodes).map(extractTextWithLinks).join('');
-        }
-        return '';
-      };
+          return null;
+        };
+  
+        return extractTextWithLinks(tweetTextElement);
+      }, TWEET_TEXT, baseUrl);
+  
+      const photos = await page.$$eval(`${TWEET_POST} ${TWEET_PHOTO} img`, imgs => imgs.map(img => img.src));
+      const videos = null;
 
-      return extractTextWithLinks(tweetTextElement);
-    }, TWEET_TEXT, baseUrl);
-
-    // Get the photos of the tweet
-    const photos = null;
-
-    // Get the videos of the tweet
-    const videos = null;
-
-    return { tweetPostContent: { text, photos, videos } };
+      return { tweetPostContent: { text, photos, videos } };
+    } catch (err) {
+      console.error(`Error extracting post content: ${err}`);
+      return null;
+    }
   }
 
   // async getPostContents(username, startIdx = 0, postsNum = 1) {

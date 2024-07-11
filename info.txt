@@ -1,0 +1,6 @@
+- Cache and view count: 1 day cache & 1 hour cache if 0 viewed
+- Instead of deleting data from db for cache, add a column to flag it, so never delete data. If flagged, then re-do the puppeteer scrape. Compare found content and stored content. If equal, don't do an API call again, de-activate flag and reutilise the same previously analysed content responses!
+- If the post from db and from the twitter website is different, update
+- If the post from twitter is deleted, delete
+- If the twitter post is hidden or private
+- Popular users
