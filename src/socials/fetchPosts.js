@@ -1,4 +1,4 @@
-import { initializeBrowser } from '../../browser/helper.js';
+import { initializeBrowser } from '../browser/helper.js';
 
 export const getPostContentsX = async (username, postNum = 5) => {
   const url = `https://x.com/${username}`;

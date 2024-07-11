@@ -1,5 +1,5 @@
 export { CONFIG } from './config.js';
-import { getPostContentsX } from './src/socials/x/getPostContents.js';
+import { getPostContentsX } from './src/socials/fetchPosts.js';
 import { initializeBrowser, closeBrowser } from './src/browser/helper.js';
 
 const browser = await initializeBrowser();
