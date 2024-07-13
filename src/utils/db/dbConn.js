@@ -10,14 +10,38 @@ const config = {
 
 const pool = mysql.createPool(config);
 
-export async function query(sql, params) {
-  const connection = await pool.getConnection();
+export async function query(sql, params, connection = null) {
+  const conn = connection || await pool.getConnection();
   try {
-    const [rows] = await connection.execute(sql, params);
+    const [rows] = await conn.execute(sql, params);
     return rows;
   } catch (err) {
     console.error(`Error executing DB query: ${err}`);
   } finally {
-    connection.release();
+    if (!connection) {
+      conn.release();
+    }
   }
 };
+
+export async function getConnection() {
+  return await pool.getConnection();
+}
+
+export async function closePool() {
+  try {
+    await pool.end();
+    console.log('DB pool closed');
+  } catch (err) {
+    console.error(`Error closing DB pool: ${err}`);
+  }
+};
+
+// Handle app termination
+const handleAppTermination = async () => {
+  await closePool();
+  process.exit(0);
+};
+
+process.on('SIGINT', handleAppTermination);
+process.on('SIGTERM', handleAppTermination);

@@ -30,9 +30,8 @@
   },
   "homepage": "https://github.com/pauserratgutierrez/Sentiment-Media#readme",
   "dependencies": {
-    "ai": "^3.2.19",
-    "cheerio": "^1.0.0-rc.12",
+    "ai": "^3.2.22",
     "mysql2": "^3.10.2",
-    "puppeteer": "^22.12.1"
+    "puppeteer": "^22.13.0"
   }
 }

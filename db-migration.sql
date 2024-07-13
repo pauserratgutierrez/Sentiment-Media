@@ -5,11 +5,10 @@
 
 -- Cache Workflow:
 -- 1. When fetching a social media post, check the 'cache_flag' field:
---   - If 'cache_flag' is true  -> Use cached data from DB
---   - If 'cache_flag' is false -> Data is stale, fetch again
---     - Compare new data with existing data in DB
---       - If same      -> Use cached data from DB
---       - If different -> Save new data to DB, re-run sentiment analysis AI, save to tables ('cache_flag' should be set to true in the application logic)
+--   1.1. If 'cache_flag' is true  -> Use cached data from DB
+--   1.2. If 'cache_flag' is false -> Data is stale, fetch again and compare new fetched data with existing data in DB
+--     1.2.1. If same      -> Use cached data from DB (Twitter post and sentiment analysis from AI which is saved in DB)
+--     1.2.2. If different -> Save new twitter post fetched data to DB, re-run sentiment analysis AI, save AI data to tables ('cache_flag' should be set to true in the application logic)
 
 CREATE DATABASE IF NOT EXISTS sentiment_media;
 USE sentiment_media;
@@ -33,12 +32,15 @@ CREATE TABLE IF NOT EXISTS social_posts (
   post_url VARCHAR(255) NOT NULL,
   added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   content TEXT,
-  check_count INT DEFAULT 1, -- number of times the post has been checked (1 by default because it's being checked now)
+  check_count INT DEFAULT 1, -- number of times the post has been checked (1 by default because it's being checked now). Should be handled in the application logic
   cache_flag BOOLEAN DEFAULT TRUE, -- True means the data is fresh. If false, the data needs to be verified again
-  last_checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- When the data was last veridied (for cache)
+  last_checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- When the data was last verified (for cache)
   FOREIGN KEY (platform_id) REFERENCES social_platforms(id) ON DELETE CASCADE,
   UNIQUE (platform_id, username, post_id)
 );
+
+-- Enable events
+SET GLOBAL event_scheduler = ON;
 
 -- Cache System: Automatically update the cache_flag to false if the post hasn't been checked in the last 24 hours and the cache_flag was true (data is stale)
 CREATE EVENT IF NOT EXISTS update_cache_flag
@@ -47,17 +49,7 @@ DO
   UPDATE social_posts
   SET cache_flag = FALSE
   WHERE last_checked_at < DATE_SUB(NOW(), INTERVAL 1 DAY)
-  AND cache_flag = TRUE
-  LIMIT 2000;
--- Automatically update the check_count and last_checked_at columns when a row is selected
-CREATE TRIGGER IF NOT EXISTS update_check_count_and_last_checked_at_on_select
-AFTER SELECT ON social_posts
-FOR EACH ROW
-BEGIN
-  UPDATE social_posts
-  SET check_count = check_count + 1, last_checked_at = NOW()
-  WHERE id = NEW.id;
-END;
+  AND cache_flag = TRUE;
 
 -- Table for storing images associated with social media posts
 CREATE TABLE IF NOT EXISTS social_posts_images (
@@ -67,20 +59,23 @@ CREATE TABLE IF NOT EXISTS social_posts_images (
   FOREIGN KEY (post_id) REFERENCES social_posts(id) ON DELETE CASCADE
 );
 
--- CREATE TABLE IF NOT EXISTS social_posts_videos (
---   id INT AUTO_INCREMENT PRIMARY KEY,
---   post_id INT NOT NULL,
---   video_url VARCHAR(255) NOT NULL,
---   FOREIGN KEY (post_id) REFERENCES social_posts(id) ON DELETE CASCADE
--- );
-
+-- Table for storing AI sentiment analysis results
 CREATE TABLE IF NOT EXISTS ai_sentiment_analysis (
   id INT AUTO_INCREMENT PRIMARY KEY,
   post_id INT NOT NULL,
-  -- Add more columns for more detailed sentiment analysis
-  sentiment_summary TEXT NOT NULL,
-  sentiment_score FLOAT NOT NULL,
-  sentiment_label VARCHAR(255) NOT NULL,
+  general_summary TEXT NOT NULL,
+  joy FLOAT DEFAULT 0,
+  love FLOAT DEFAULT 0,
+  hope FLOAT DEFAULT 0,
+  pride FLOAT DEFAULT 0,
+  nostalgia FLOAT DEFAULT 0,
+  fear FLOAT DEFAULT 0,
+  sadness FLOAT DEFAULT 0,
+  disgust FLOAT DEFAULT 0,
+  anger FLOAT DEFAULT 0,
+  shame FLOAT DEFAULT 0,
+  guilt FLOAT DEFAULT 0,
+  surprise FLOAT DEFAULT 0,
   FOREIGN KEY (post_id) REFERENCES social_posts(id) ON DELETE CASCADE
 );
 
