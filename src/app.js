@@ -1,46 +1,38 @@
+import express from 'express';
 import { CONFIG } from './config.js';
-import { x } from './utils/socials/x/getData.js';
+import { x } from './utils/socials/twitter/twitter.js';
 import { initializeBrowser, closeBrowser } from './utils/browser/helper.js';
 
-// Keep the browser instance open for the entire execution
-async function main() {
-  console.log('Initializing Sentiment Media...');
-  let browser;
-  
-  try {
-    browser = await initializeBrowser();
-    global.BROWSER = browser;
-    
-    const xInstance = new x();
+// Server setup
+const app = express();
+const port = process.env.PORT || CONFIG.SERVER.PORT;
 
-    const username = 'elonmusk';
-    const id = '1811850123917529365';
-    const postContent = await xInstance.getPostSingleContent(username, id);
-    console.log(postContent);
+app.use(express.json());
+app.use(express.static('src/public'));
 
-    const username2 = 'johnkrausphotos';
-    const id2 = '1811972528136503551';
-    const postContent2 = await xInstance.getPostSingleContent(username2, id2);
-    console.log(postContent2);
+const xInstance = new x();
 
-    const username3 = 'MrBeast';
-    const id3 = '1812155099373867268';
-    const postContent3 = await xInstance.getPostSingleContent(username3, id3);
-    console.log(postContent3);
+// // Route: Home
+// app.get('/', (req, res) => {
+//   res.sendFile('index.html', { root: '' });
+// });
 
-    const username4 = 'InformaCosmos';
-    const id4 = '1811914408236580987';
-    const postContent4 = await xInstance.getPostSingleContent(username4, id4);
-    console.log(postContent4);
-    
-    // const username = 'elonmusk';
-    // const postContents = await xInstance.getPostContents(username, 0, 20);
-    // console.log(postContents);
-  } catch (err) {
-    console.error(`Error in main execution: ${err}`);
-  } finally {
-    await closeBrowser();
-  }
-}
+// Route: Get Twitter post contents
+app.get('/api/getPostContents', async (req, res) => {
+  const { postUrl } = req.query;
 
-await main();
+  var validation = [];
+  if (!postUrl) validation.push('postUrl');
+  if (validation.length > 0) return res.status(400).send({ error: 'Missing required fields!', fields: validation });
+
+  const postContent = await xInstance.getPostSingleContent(postUrl);
+  if (!postContent) return res.status(400).send({ error: 'The post content could not be found' });
+
+  console.log(`Returning post content for X -> ${postUrl}...`);
+  return res.send({ twitter: { postUrl }, data: { postContent } });
+});
+
+app.listen(port, async () => {
+  console.log(`Server is running on http://localhost:${port}`);
+  global.BROWSER = await initializeBrowser();
+});

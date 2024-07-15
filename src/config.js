@@ -1,4 +1,7 @@
 export const CONFIG = {
+  SERVER: {
+    PORT: 3000
+  },
   HTML_ELEMENTS: {
     X: {
       TWEET_POST: 'article[data-testid="tweet"]', // Contains all the tweet elements

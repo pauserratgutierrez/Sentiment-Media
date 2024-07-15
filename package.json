@@ -4,7 +4,7 @@
   "description": "An AI cappable of analysing sentiment from a given Twitter user",
   "main": "src/app.js",
   "scripts": {
-    "start": "node --env-file=.env ."
+    "start": "node --watch --env-file=.env ."
   },
   "type": "module",
   "repository": {
@@ -13,15 +13,11 @@
   },
   "keywords": [
     "AI",
-    "Vercel",
-    "AI",
-    "SDK",
     "OpenAI",
-    "Social",
-    "Media",
-    "Twitter",
-    "Sentiment",
-    "Analysis"
+    "Vercel AI SDK",
+    "Social Media",
+    "Sentiment Analysis",
+    "Twitter"
   ],
   "author": "Pau Serrat Gutiérrez",
   "license": "ISC",
@@ -31,6 +27,7 @@
   "homepage": "https://github.com/pauserratgutierrez/Sentiment-Media#readme",
   "dependencies": {
     "ai": "^3.2.22",
+    "express": "^4.19.2",
     "mysql2": "^3.10.2",
     "puppeteer": "^22.13.0"
   }

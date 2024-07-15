@@ -9,7 +9,8 @@ export const initializeBrowser = async () => {
       browser = await puppeteer.launch({
         headless: true,
         defaultViewport: null,
-        args: [`--window-size=1920,1080`]
+        args: [`--window-size=1920,1080`],
+        timeout: 10000
       });
       console.log('Browser instance launched!');
     } catch (err) {

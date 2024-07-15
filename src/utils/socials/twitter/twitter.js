@@ -1,6 +1,4 @@
-import { getConnection, query } from '../../db/dbConn.js';
-
-// The "update_cache_flag" event in the DB runs every hour. Updates the "cache_flag" to "false" for posts tat have not been checked in the last 24h and have a "cache_flag" of "true"
+import { getPostInfoFromDb, saveNewPostToDb, updateDbWithNewData, updateCacheFlag } from './twitterDb.js';
 
 export class x {
   constructor() {
@@ -9,11 +7,23 @@ export class x {
     this.platformId = 1; // 1 is the ID for 'twitter' in the DB
   }
 
-  async getPostSingleContent(username, id) {
-    console.log(`\nGetting post content for X -> ${username} - ${id}...`);
+  async getPostSingleContent(postUrl) {
+    // https://x.com/ceciarmy/status/1812483540421910626
+    const urlPattern = /^(https?:\/\/)?(www\.)?(x\.com|twitter\.com)\/([^\/]+)\/status\/(\d+)(\/)?$/;
+    const match = postUrl.match(urlPattern);
+
+    if (!match) {
+      console.error(`Invalid URL: ${postUrl}`);
+      return null;
+    }
+
+    const username = match[4];
+    const id = match[5];
+    
+    console.log(`Getting post content for X -> ${postUrl}...\nExtracting username: ${username}, id: ${id}`);
 
     try {
-      const postInfoDb = await this.getPostInfoFromDb(username, id);
+      const postInfoDb = await getPostInfoFromDb(this.platformId, username, id);
       if (postInfoDb.length > 0) { // If the post is already in the Database (Information could be stale or fresh)
         // Get relevant data from the DB
         const postText = postInfoDb[0];
@@ -21,25 +31,31 @@ export class x {
 
         if (postText.cache_flag) { // db column cache_flag = true if post data is fresh (data is checked and verified, not stale)
           console.log(`Using cached data from DB for post...`);
-          return { text: postText.content, photos: postImages || [] };
+          return { text: postText.content, photos: postImages };
         } else { // If the post data is stale (data needs to be verified again)
           console.log(`Post data is stale, fetching new data from twitter...`);
           const newData = await this.fetchAndProcessPostSingleContent(username, id);
           if (this.isDataDifferent(postText, newData)) { // If the new data is different from the cached data in the DB
             console.log(`New feched data is different from cached data from DB, updating DB (and re-running sentiment analysis...)`);
-            await this.updateDbWithNewData(postText.id, newData);
+            await updateDbWithNewData(postText.id, newData);
             // Run sentiment analysis AI and save to tables
-            await this.updateCacheFlag(postText.id, true);
           } else { // If the new feched data is the same as the cached data in the DB
             console.log(`New fetched data is the same as cached data from DB, using cached data.`);
-            await this.updateCacheFlag(postText.id, true);
           }
+          await updateCacheFlag(postText.id, true);
+          
           return newData;
         }
       } else { // If the post is not in the Database
         console.log(`Post not in DB, fetching new data from twitter...`);
         const newData = await this.fetchAndProcessPostSingleContent(username, id);
-        await this.saveNewPostToDb(username, id, newData);
+
+        if (!newData) {
+          console.log(`Post data could not be fetched from twitter. Cannot save to DB.`);
+          return null;
+        }
+
+        await saveNewPostToDb(this.platformId, username, id, newData);
         // Run sentiment analysis AI and save to tables
         return newData;
       }
@@ -53,8 +69,15 @@ export class x {
     const page = await BROWSER.newPage();
 
     try {
-      await page.goto(url, { waitUntil: 'networkidle2' });
-      await page.waitForSelector(this.selectors.TWEET_POST);
+      await page.goto(url, { timeout: 10000, waitUntil: 'networkidle2' });
+
+      try {
+        await page.waitForSelector(this.selectors.TWEET_POST, { timeout: 4000 });
+      } catch (err) { // Tweet post not found
+        console.error(`Error waiting for tweet post: ${err}`);
+        return null;
+      }
+
       const postContent = await this.extractPostContent(page, url);
       return postContent;
     } catch (err) {
@@ -72,7 +95,7 @@ export class x {
 
     try {
       const text = await page.$eval(TWEET_POST, (el, tweetTextSelector, baseUrl) => {
-      const tweetTextElement = el.querySelector(tweetTextSelector);
+        const tweetTextElement = el.querySelector(tweetTextSelector);
         if (!tweetTextElement) return null;
   
         // Extract text with links and replace img tags with their alt text (emojis)
@@ -100,118 +123,6 @@ export class x {
     } catch (err) {
       console.error(`Error extracting post content: ${err}`);
       return null;
-    }
-  }
-
-  // Retrieve post content from the database
-  async getPostInfoFromDb(username, id) {
-    const connection = await getConnection();
-
-    try {
-      const resp = await query(
-        `SELECT sp.*, spi.image_url
-        FROM social_posts sp
-        LEFT JOIN social_posts_images spi ON sp.id = spi.post_id
-        WHERE sp.platform_id = ? AND sp.username = ? AND sp.post_id = ?`,
-        [this.platformId, username, id]
-      );
-
-      // Update check_count
-      if (resp.length > 0) {
-        await query(
-          `UPDATE social_posts
-          SET check_count = check_count + 1
-          WHERE id = ?`,
-          [resp[0].id]
-        );
-      }
-
-      // Info from social_posts -> resp[0]
-      // Images from social_posts_images are joined, use -> resp.map(row => row.image_url)
-      return resp;
-    } catch (err) {
-      console.error(`Error getting post info from DB: ${err}`);
-    } finally {
-      connection.release();
-    }
-  }
-
-  async isDataDifferent(oldData, newData) {
-    return oldData.text !== newData.text || JSON.stringify(oldData.photos) !== JSON.stringify(newData.photos)
-  }
-
-  async updateDbWithNewData(postId, newData) {
-    const connection = await getConnection();
-    try {
-      await connection.beginTransaction();
-
-      await query(
-        `UPDATE social_posts SET content = ?, cache_flag = true last_checked_at = NOW() WHERE id = ?`,
-        [newData.text, postId],
-        connection
-      );
-
-      await query(
-        'DELETE FROM social_posts_images WHERE post_id = ?',
-        [postId],
-        connection
-      );
-
-      for (const photo of newData.photos) {
-        await query(
-          `INSERT INTO social_posts_images (post_id, image_url) VALUES (?, ?)`,
-          [postId, photo],
-          connection
-        );
-      }
-
-      await connection.commit();
-    } catch (err) {
-      await connection.rollback();
-      console.error(`Error updating DB with new data: ${err}`);
-    } finally {
-      connection.release();
-    }
-  }
-
-  async updateCacheFlag(postId, flag) {
-    try {
-      await query(
-        `UPDATE social_posts SET cache_flag = ? last_checked_at = NOW() WHERE id = ?`,
-        [flag, postId]
-      );
-    } catch (err) {
-      console.error(`Error updating cache flag: ${err}`);
-    }
-  }
-
-  async saveNewPostToDb(username, id, content) {
-    const connection = await getConnection();
-    try {
-      await connection.beginTransaction();
-
-      const result = await query(
-        `INSERT INTO social_posts (platform_id, username, post_id, post_url, content) VALUES (?, ?, ?, ?, ?)`,
-        [this.platformId, username, id, `https://x.com/${username}/status/${id}`, content.text],
-        connection
-      );
-      const postId = result.insertId;
-
-      for (const photo of content.photos) {
-        await query(
-          `INSERT INTO social_posts_images (post_id, image_url) VALUES (?, ?)`,
-          [postId, photo],
-          connection
-        );
-      }
-      
-      await connection.commit();
-      return postId;
-    } catch (err) {
-      await connection.rollback();
-      console.error(`Error saving new post to DB: ${err}`);
-    } finally {
-      connection.release();
     }
   }
 
