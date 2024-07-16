@@ -1,4 +1,5 @@
-import { getPostInfoFromDb, saveNewPostToDb, updateDbWithNewData, updateCacheFlag } from './twitterDb.js';
+import { getPostInfoFromDb, saveNewPostToDb, updateDbWithNewData, updateCacheFlag, saveSentimentAnalysisToDb } from './twitterDb.js';
+import { runAISentimentAnalysis } from '../../ai/vercelAI.js';
 
 export class x {
   constructor() {
@@ -55,8 +56,16 @@ export class x {
           return null;
         }
 
-        await saveNewPostToDb(this.platformId, username, id, newData);
-        // Run sentiment analysis AI and save to tables
+        // Save new post data to social_posts table (get the post ID from the saved data)
+        const postId = await saveNewPostToDb(this.platformId, username, id, newData);
+        // Run sentiment analysis AI
+        const sentimentAnalysis = await runAISentimentAnalysis(newData.text);
+        if (sentimentAnalysis) {
+          await saveSentimentAnalysisToDb(postId, sentimentAnalysis);
+        } else {
+          console.log(`Error running sentiment analysis for post.`);
+        }
+
         return newData;
       }
     } catch (err) {

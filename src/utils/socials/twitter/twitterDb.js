@@ -111,3 +111,34 @@ export const saveNewPostToDb = async (platformId, username, id, content) => {
     connection.release();
   }
 };
+
+export const saveSentimentAnalysisToDb = async (postId, sentimentAnalysis) => {
+  const { 
+    general_summary,
+    joy,
+    love,
+    hope,
+    pride,
+    nostalgia,
+    fear,
+    sadness,
+    disgust,
+    anger,
+    shame,
+    guilt,
+    surprise
+  } = sentimentAnalysis;
+
+  const connection = await getConnection();
+  try {
+    await query(
+      `INSERT INTO ai_sentiment_analysis (post_id, general_summary, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise) VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)`,
+      [postId, general_summary, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise],
+      connection
+    );
+  } catch (err) {
+    console.error(`Error saving sentiment analysis to DB: ${err}`);
+  } finally {
+    connection.release();
+  }
+};

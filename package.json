@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/pauserratgutierrez/Sentiment-Media#readme",
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.36",
     "ai": "^3.2.22",
     "express": "^4.19.2",
     "mysql2": "^3.10.2",
