@@ -1,0 +1,118 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Cg fill="none" stroke="%23b3cde0" stroke-width="1"%3E%3Cpath d="M0 0L40 40M40 0L0 40" /%3E%3Cpath d="M0 20L40 20M20 0L20 40" /%3E%3C/g%3E%3C/svg%3E');
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  background-color: #f0f8ff;
+}
+
+h1 {
+  font-size: 3em;
+  margin: 0;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 140px); /* Adjusting for header and footer height */
+  text-align: center;
+}
+
+form {
+  background-color: #ffffffcc; /* Slightly transparent white */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  font-size: 2em;
+}
+
+input[type="text"] {
+  width: 300px;
+  padding: 10px;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#response {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tweet-box {
+  background-color: #ffffff;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.tweet-content {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.tweet-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tweet-photos img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.sentiment-analysis {
+  margin-top: 20px;
+  font-size: 1.2em;
+  line-height: 1.5;
+}
+
+.sentiment-summary {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #f0f8ff;
+}
+
+footer p {
+  margin: 0;
+  font-size: 1.2em;
+}

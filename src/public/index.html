@@ -3,26 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Sentiment Media</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="main.js" defer></script>
 </head>
 <body>
-<!-- Add a form to pass Twitter username & post id and call api/getPostContents?username=&id= -->
-  <form action="api/getPostContents" method="get">
-    <label for="postUrl">Post URL:</label>
-    <input type="text" id="postUrl" name="postUrl">
-    <input type="submit" value="Submit">
-  </form>
-  <div id="postContents"></div>
-  <script>
-    const form = document.querySelector('form');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const url = document.querySelector('#postUrl').value;
-
-      const response = await fetch(`api/getPostContents?url=${url}`);
-      const data = await response.json();
-      document.querySelector('#postContents').innerHTML = data.text;
-      return;
-    });
-  </script>
+  <header>
+    <h1>Sentiment Media</h1>
+  </header>
+  
+  <main>
+    <form action="api/getPostContents" method="get">
+      <h2>Analyse the sentiment of any tweet!</h2>
+      <input type="text" name="postUrl" placeholder="Enter a Twitter Post URL">
+      <button type="submit">Analyse</button>
+    </form>
+    <div id="response"></div>
+  </main>
+  
+  <footer>
+    <p>Pau Serrat Gutiérrez</p>
+  </footer>
 </body>
 </html>
