@@ -40,24 +40,25 @@ export const runAISentimentAnalysis = async (postText) => {
         "shame": <value>,
         "guilt": <value>,
         "surprise": <value>
-      }
+      }`;
 
-  Respira profundamente y utiliza todo tu potencial para analizar las emociones y generar el JSON con el formato específico. ¡Buena suerte!`;
-
-  const prompt = `Analiza, clasifica y resume las emociones y sentimientos presentes en el siguiente texto, siguiendo las instrucciones detalladas en la descripción del sistema: "${postText}"`;
+  const prompt = `Texto para analizar: "${postText}"`;
 
   const { text } = await generateText({
     apiKey: process.env.OPENAI_API_KEY,
     model: openai('gpt-4o'),
     prompt: prompt,
     system: system,
-    maxTokens: 200,
+    maxTokens: 500,
     temperature: 0.3,
+    topP: 0.9,
+    presencePenalty: 1, // It affects the likelihood of the model to repeat information that is already in the prompt. CHECK
+    frequencyPenalty: 0.0, // It affects the likelihood of the model to repeatedly use the same words or phrases.
+    maxRetries: 0, // Disable retries
   });
 
   // Only keep the JSON part of the response
-  const getJson = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-  const parsedResponse = JSON.parse(getJson);
+  const jsonResponse = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
 
-  return parsedResponse;
+  return JSON.parse(jsonResponse);
 };

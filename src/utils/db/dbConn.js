@@ -8,7 +8,11 @@ const config = {
   port: process.env.DB_PORT
 };
 
-const pool = mysql.createPool(config);
+const pool = mysql.createPool({
+  ...config,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
 export async function query(sql, params, connection = null) {
   const conn = connection || await pool.getConnection();
@@ -17,6 +21,7 @@ export async function query(sql, params, connection = null) {
     return rows;
   } catch (err) {
     console.error(`Error executing DB query: ${err}`);
+    throw err;
   } finally {
     if (!connection) {
       conn.release();

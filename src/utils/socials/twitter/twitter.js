@@ -1,5 +1,6 @@
-import { getPostInfoFromDb, saveNewPostToDb, updateDbWithNewData, updateCacheFlag, saveSentimentAnalysisToDb } from './twitterDb.js';
+import { getPostInfoFromDb, isDataDifferent, saveNewPostToDb, updateDbWithNewData, updateCacheFlag, saveSentimentAnalysisToDb } from './twitterDb.js';
 import { runAISentimentAnalysis } from '../../ai/vercelAI.js';
+import { getPage } from '../../browser/helper.js';
 
 export class x {
   constructor() {
@@ -8,101 +9,112 @@ export class x {
     this.platformId = 1; // 1 is the ID for 'twitter' in the DB
   }
 
+  // https://x.com/ceciarmy/status/1812483540421910626
   async getPostSingleContent(postUrl) {
-    // https://x.com/ceciarmy/status/1812483540421910626
-    const urlPattern = /^(https?:\/\/)?(www\.)?(x\.com|twitter\.com)\/([^\/]+)\/status\/(\d+)(\/)?$/;
-    const match = postUrl.match(urlPattern);
+    const { username, id } = this.extractUrlInfo(postUrl);
+    if (!username || !id) return null;
 
-    if (!match) {
-      console.error(`Invalid URL: ${postUrl}`);
-      return null;
-    }
-
-    const username = match[4];
-    const id = match[5];
-    
     console.log(`Getting post content for X -> ${postUrl}...\nExtracting username: ${username}, id: ${id}`);
 
     try {
       const postInfoDb = await getPostInfoFromDb(this.platformId, username, id);
       if (postInfoDb.length > 0) { // If the post is already in the Database (Information could be stale or fresh)
-        // Get relevant data from the DB
-        const postText = postInfoDb[0];
-        const postImages = postInfoDb.map(row => row.image_url).filter(url => url !== null);
-        const sentimentAnalysis = {
-          general_summary: postInfoDb[0].general_summary,
-          joy: postInfoDb[0].joy,
-          love: postInfoDb[0].love,
-          hope: postInfoDb[0].hope,
-          pride: postInfoDb[0].pride,
-          nostalgia: postInfoDb[0].nostalgia,
-          fear: postInfoDb[0].fear,
-          sadness: postInfoDb[0].sadness,
-          disgust: postInfoDb[0].disgust,
-          anger: postInfoDb[0].anger,
-          shame: postInfoDb[0].shame,
-          guilt: postInfoDb[0].guilt,
-          surprise: postInfoDb[0].surprise
-        };
-
-        if (postText.cache_flag) { // db column cache_flag = true if post data is fresh (data is checked and verified, not stale)
-          console.log(`Using cached data from DB for post...`);
-          return { text: postText.content, photos: postImages, sentimentAnalysis };
-        } else { // If the post data is stale (data needs to be verified again)
-          console.log(`Post data is stale, fetching new data from twitter...`);
-          const newData = await this.fetchAndProcessPostSingleContent(username, id);
-          if (this.isDataDifferent(postText, newData)) { // If the new data is different from the cached data in the DB
-            console.log(`New feched data is different from cached data from DB, updating DB (and re-running sentiment analysis...)`);
-            await updateDbWithNewData(postText.id, newData);
-            // Re-Run sentiment analysis AI and save to tables (Delete previous sentiment!)
-          } else { // If the new feched data is the same as the cached data in the DB
-            console.log(`New fetched data is the same as cached data from DB, using cached data.`);
-            await updateCacheFlag(postText.id, true);
-            return { text: postText.content, photos: postImages, sentimentAnalysis };
-          }
-        }
+        return await this.handleExistingPost(postInfoDb, username, id);
       } else { // If the post is not in the Database
-        console.log(`Post not in DB, fetching new data from twitter...`);
-        const newData = await this.fetchAndProcessPostSingleContent(username, id);
-
-        if (!newData) {
-          console.log(`Post data could not be fetched from twitter. Cannot save to DB.`);
-          return null;
-        }
-
-        // Save new post data to social_posts table (get the post ID from the saved data)
-        const postId = await saveNewPostToDb(this.platformId, username, id, newData);
-        // Run sentiment analysis AI
-        const sentimentAnalysis = await runAISentimentAnalysis(newData.text);
-        if (sentimentAnalysis) {
-          await saveSentimentAnalysisToDb(postId, sentimentAnalysis);
-        } else {
-          console.log(`Error running sentiment analysis for post.`);
-        }
-
-        return { text: newData.text, photos: newData.photos, sentimentAnalysis };
+        return await this.handleNewPost(username, id);
       }
     } catch (err) {
       console.error(`Error processing post: ${err}`);
     }
   }
 
+  // Get the username and id from the Twitter post URL
+  extractUrlInfo(postUrl) {
+    const urlPattern = /^(https?:\/\/)?(www\.)?(x\.com|twitter\.com)\/([^\/]+)\/status\/(\d+)(\/)?$/;
+    const match = postUrl.match(urlPattern);
+    if (!match) {
+      console.error(`Invalid URL: ${postUrl}`);
+      return {};
+    }
+
+    return { username: match[4], id: match[5] };
+  }
+
+  async handleExistingPost(postInfoDb, username, id) {
+    const postText = postInfoDb[0];
+    const postImages = postInfoDb.map(row => row.image_url).filter(url => url !== null);
+    const sentimentAnalysis = this.extractSentimentAnalysis(postInfoDb[0]);
+
+    if (postText.cache_flag) {
+      console.log(`Using cached data from DB for post...`);
+      return { text: postText.content, photos: postImages, sentimentAnalysis };
+    } else {
+      console.log(`Post data is stale, fetching new data from twitter...`);
+      const newData = await this.fetchAndProcessPostSingleContent(username, id);
+      if (!newData) return null;
+      return await this.updatePostIfNecessary(postText, newData, postImages, sentimentAnalysis);
+    }
+  }
+
+  async handleNewPost(username, id) {
+    console.log(`Post not in DB, fetching new data from Twitter...`);
+    const newData = await this.fetchAndProcessPostSingleContent(username, id);
+    if (!newData) return null;
+
+    const postId = await saveNewPostToDb(this.platformId, username, id, newData);
+    const sentimentAnalysis = await runAISentimentAnalysis(newData.text);
+    if (sentimentAnalysis) {
+      await saveSentimentAnalysisToDb(postId, sentimentAnalysis);
+    } else {
+      console.log(`Error running sentiment analysis for post.`);
+    }
+
+    return { text: newData.text, photos: newData.photos, sentimentAnalysis };
+  }
+
+  async updatePostIfNecessary(postText, newData, postImages, sentimentAnalysis) {
+    if (isDataDifferent(postText.content, newData.text)) {
+      console.log(`New fetched data is different from cached data, updating DB and re-running sentiment analysis...`);
+      await updateDbWithNewData(postText.id, newData);
+      sentimentAnalysis = await runAISentimentAnalysis(newData.text);
+      if (sentimentAnalysis) {
+        await saveSentimentAnalysisToDb(postText.id, sentimentAnalysis);
+      } else {
+        console.log(`Error running sentiment analysis for post.`);
+      }
+    } else {
+      console.log(`New fetched data is the same as cached data, using cached data.`);
+      await updateCacheFlag(postText.id, true);
+    }
+
+    return { text: newData.text, photos: postImages, sentimentAnalysis };
+  }
+
+  extractSentimentAnalysis(postInfo) {
+    return {
+      general_summary: postInfo.general_summary,
+      joy: postInfo.joy,
+      love: postInfo.love,
+      hope: postInfo.hope,
+      pride: postInfo.pride,
+      nostalgia: postInfo.nostalgia,
+      fear: postInfo.fear,
+      sadness: postInfo.sadness,
+      disgust: postInfo.disgust,
+      anger: postInfo.anger,
+      shame: postInfo.shame,
+      guilt: postInfo.guilt,
+      surprise: postInfo.surprise
+    };
+  }
+
   async fetchAndProcessPostSingleContent(username, id) {
     const url = `https://x.com/${username}/status/${id}`;
-    const page = await BROWSER.newPage();
-
+    const page = await getPage();
     try {
       await page.goto(url, { timeout: 10000, waitUntil: 'networkidle2' });
-
-      try {
-        await page.waitForSelector(this.selectors.TWEET_POST, { timeout: 4000 });
-      } catch (err) { // Tweet post not found
-        console.error(`Error waiting for tweet post: ${err}`);
-        return null;
-      }
-
-      const postContent = await this.extractPostContent(page, url);
-      return postContent;
+      await page.waitForSelector(this.selectors.TWEET_POST, { timeout: 4000 });
+      return await this.extractPostContent(page, url);
     } catch (err) {
       console.error(`Error getting post content for X -> ${username} - ${id}: ${err}`);
       return null;
@@ -113,9 +125,7 @@ export class x {
 
   async extractPostContent(page, baseUrl) {
     console.log(`Extracting post content from ${baseUrl}...`);
-
     const { TWEET_POST, TWEET_TEXT, TWEET_PHOTO } = this.selectors;
-
     try {
       const text = await page.$eval(TWEET_POST, (el, tweetTextSelector, baseUrl) => {
         const tweetTextElement = el.querySelector(tweetTextSelector);
@@ -148,10 +158,6 @@ export class x {
       return null;
     }
   }
-
-  // Run sentiment analysis AI
-
-  // Save sentiment analysis results to ai_sentiment_analysis table
 
   // async getPostContents(username, startIdx = 0, postsNum = 1) {
   //   const url = `https://x.com/${username}`;

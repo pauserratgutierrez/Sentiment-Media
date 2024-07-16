@@ -20,10 +20,7 @@ const xInstance = new x();
 // Route: Get Twitter post contents
 app.get('/api/getPostContents', async (req, res) => {
   const { postUrl } = req.query;
-
-  var validation = [];
-  if (!postUrl) validation.push('postUrl');
-  if (validation.length > 0) return res.status(400).send({ error: 'Missing required fields!', fields: validation });
+  if (!postUrl) return res.status(400).send({ error: 'Missing required fields!', fields: ['postUrl'] });
 
   const postContent = await xInstance.getPostSingleContent(postUrl);
   if (!postContent) return res.status(400).send({ error: 'The post content could not be found' });
@@ -32,7 +29,24 @@ app.get('/api/getPostContents', async (req, res) => {
   return res.send({ twitter: { postUrl }, data: { postContent } });
 });
 
+// Global error handler middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: 'Something went wrong!' });
+});
+
 app.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);
   global.BROWSER = await initializeBrowser();
+});
+
+// Handle app termination
+process.on('SIGINT', async () => {
+  await closeBrowser();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await closeBrowser();
+  process.exit(0);
 });

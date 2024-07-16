@@ -3,7 +3,6 @@ import { getConnection, query } from '../../db/dbConn.js';
 // Retrieve post content from the database
 export const getPostInfoFromDb = async (platformId, username, id) => {
   const connection = await getConnection();
-
   try {
     const resp = await query(
       `SELECT sp.*, spi.image_url, asa.*
@@ -15,20 +14,12 @@ export const getPostInfoFromDb = async (platformId, username, id) => {
     );
 
     // Update check_count
-    if (resp.length > 0) {
-      await query(
-        `UPDATE social_posts
-        SET check_count = check_count + 1
-        WHERE id = ?`,
-        [resp[0].id]
-      );
-    }
+    if (resp.length > 0) await query(`UPDATE social_posts SET check_count = check_count + 1 WHERE id = ?`, [resp[0].id]);
 
-    // Info from social_posts -> resp[0]
-    // Images from social_posts_images are joined, use -> resp.map(row => row.image_url)
     return resp;
   } catch (err) {
     console.error(`Error getting post info from DB: ${err}`);
+    return [];
   } finally {
     connection.release();
   }
@@ -43,25 +34,13 @@ export const updateDbWithNewData = async (postId, newData) => {
   try {
     await connection.beginTransaction();
 
-    await query(
-      `UPDATE social_posts SET content = ? WHERE id = ?`,
-      [newData.text, postId],
-      connection
-    );
+    await query('UPDATE social_posts SET content = ? WHERE id = ?', [newData.text, postId], connection);
 
-    await query(
-      'DELETE FROM social_posts_images WHERE post_id = ?',
-      [postId],
-      connection
-    );
+    await query('DELETE FROM social_posts_images WHERE post_id = ?', [postId], connection);
 
     for (const photo of newData.photos) {
-      await query(
-        `INSERT INTO social_posts_images (post_id, image_url) VALUES (?, ?)`,
-        [postId, photo],
-        connection
-      );
-    }
+      await query('INSERT INTO social_posts_images (post_id, image_url) VALUES (?, ?)', [postId, photo], connection);
+    };
 
     await connection.commit();
   } catch (err) {
@@ -74,10 +53,7 @@ export const updateDbWithNewData = async (postId, newData) => {
 
 export const updateCacheFlag = async (postId, flag) => {
   try {
-    await query(
-      `UPDATE social_posts SET cache_flag = ?, last_checked_at = NOW() WHERE id = ?`,
-      [flag, postId]
-    );
+    await query('UPDATE social_posts SET cache_flag = ?, last_checked_at = NOW() WHERE id = ?', [flag, postId]);
   } catch (err) {
     console.error(`Error updating cache flag: ${err}`);
   }
@@ -96,11 +72,7 @@ export const saveNewPostToDb = async (platformId, username, id, content) => {
     const postId = result.insertId;
 
     for (const photo of content.photos) {
-      await query(
-        `INSERT INTO social_posts_images (post_id, image_url) VALUES (?, ?)`,
-        [postId, photo],
-        connection
-      );
+      await query('INSERT INTO social_posts_images (post_id, image_url) VALUES (?, ?)', [postId, photo], connection);
     }
     
     await connection.commit();
@@ -132,12 +104,21 @@ export const saveSentimentAnalysisToDb = async (postId, sentimentAnalysis) => {
 
   const connection = await getConnection();
   try {
+    await connection.beginTransaction();
+
+    // Delete any existing sentiment analysis for this post
+    await query(`DELETE FROM ai_sentiment_analysis WHERE post_id = ?`, [postId], connection);
+
+    // Insert new sentiment analysis
     await query(
       `INSERT INTO ai_sentiment_analysis (post_id, general_summary, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise) VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)`,
       [postId, general_summary, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise],
       connection
     );
+
+    await connection.commit();
   } catch (err) {
+    await connection.rollback();
     console.error(`Error saving sentiment analysis to DB: ${err}`);
   } finally {
     connection.release();
