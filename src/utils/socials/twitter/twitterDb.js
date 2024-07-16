@@ -6,9 +6,10 @@ export const getPostInfoFromDb = async (platformId, username, id) => {
 
   try {
     const resp = await query(
-      `SELECT sp.*, spi.image_url
+      `SELECT sp.*, spi.image_url, asa.*
       FROM social_posts sp
       LEFT JOIN social_posts_images spi ON sp.id = spi.post_id
+      LEFT JOIN ai_sentiment_analysis asa ON sp.id = asa.post_id
       WHERE sp.platform_id = ? AND sp.username = ? AND sp.post_id = ?`,
       [platformId, username, id]
     );

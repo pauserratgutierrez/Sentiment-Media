@@ -29,23 +29,37 @@ export class x {
         // Get relevant data from the DB
         const postText = postInfoDb[0];
         const postImages = postInfoDb.map(row => row.image_url).filter(url => url !== null);
+        const sentimentAnalysis = {
+          general_summary: postInfoDb[0].general_summary,
+          joy: postInfoDb[0].joy,
+          love: postInfoDb[0].love,
+          hope: postInfoDb[0].hope,
+          pride: postInfoDb[0].pride,
+          nostalgia: postInfoDb[0].nostalgia,
+          fear: postInfoDb[0].fear,
+          sadness: postInfoDb[0].sadness,
+          disgust: postInfoDb[0].disgust,
+          anger: postInfoDb[0].anger,
+          shame: postInfoDb[0].shame,
+          guilt: postInfoDb[0].guilt,
+          surprise: postInfoDb[0].surprise
+        };
 
         if (postText.cache_flag) { // db column cache_flag = true if post data is fresh (data is checked and verified, not stale)
           console.log(`Using cached data from DB for post...`);
-          return { text: postText.content, photos: postImages };
+          return { text: postText.content, photos: postImages, sentimentAnalysis };
         } else { // If the post data is stale (data needs to be verified again)
           console.log(`Post data is stale, fetching new data from twitter...`);
           const newData = await this.fetchAndProcessPostSingleContent(username, id);
           if (this.isDataDifferent(postText, newData)) { // If the new data is different from the cached data in the DB
             console.log(`New feched data is different from cached data from DB, updating DB (and re-running sentiment analysis...)`);
             await updateDbWithNewData(postText.id, newData);
-            // Run sentiment analysis AI and save to tables
+            // Re-Run sentiment analysis AI and save to tables (Delete previous sentiment!)
           } else { // If the new feched data is the same as the cached data in the DB
             console.log(`New fetched data is the same as cached data from DB, using cached data.`);
+            await updateCacheFlag(postText.id, true);
+            return { text: postText.content, photos: postImages, sentimentAnalysis };
           }
-          await updateCacheFlag(postText.id, true);
-          
-          return newData;
         }
       } else { // If the post is not in the Database
         console.log(`Post not in DB, fetching new data from twitter...`);
@@ -66,7 +80,7 @@ export class x {
           console.log(`Error running sentiment analysis for post.`);
         }
 
-        return newData;
+        return { text: newData.text, photos: newData.photos, sentimentAnalysis };
       }
     } catch (err) {
       console.error(`Error processing post: ${err}`);
