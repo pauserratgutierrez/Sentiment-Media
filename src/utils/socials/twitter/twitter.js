@@ -10,7 +10,7 @@ export class x {
   }
 
   // https://x.com/ceciarmy/status/1812483540421910626
-  async getPostSingleContent(postUrl) {
+  async getPostSingle(postUrl) {
     const { username, id } = this.extractUrlInfo(postUrl);
     if (!username || !id) return null;
 
@@ -18,10 +18,24 @@ export class x {
 
     try {
       const postInfoDb = await getPostInfoFromDb(this.platformId, username, id);
+      let result;
       if (postInfoDb.length > 0) { // If the post is already in the Database (Information could be stale or fresh)
-        return await this.handleExistingPost(postInfoDb, username, id);
+        result = await this.handleExistingPost(postInfoDb, username, id);
       } else { // If the post is not in the Database
-        return await this.handleNewPost(username, id);
+        result = await this.handleNewPost(username, id);
+      }
+
+      return {
+        social: 'twitter',
+        post: {
+          url: postUrl,
+          username,
+          content: {
+            text: result.text,
+            photos: result.photos
+          },
+          sentimentAnalysis: result.sentimentAnalysis
+        }
       }
     } catch (err) {
       console.error(`Error processing post: ${err}`);
@@ -93,18 +107,20 @@ export class x {
   extractSentimentAnalysis(postInfo) {
     return {
       general_summary: postInfo.general_summary,
-      joy: postInfo.joy,
-      love: postInfo.love,
-      hope: postInfo.hope,
-      pride: postInfo.pride,
-      nostalgia: postInfo.nostalgia,
-      fear: postInfo.fear,
-      sadness: postInfo.sadness,
-      disgust: postInfo.disgust,
-      anger: postInfo.anger,
-      shame: postInfo.shame,
-      guilt: postInfo.guilt,
-      surprise: postInfo.surprise
+      emotion_tags: {
+        joy: postInfo.joy,
+        love: postInfo.love,
+        hope: postInfo.hope,
+        pride: postInfo.pride,
+        nostalgia: postInfo.nostalgia,
+        fear: postInfo.fear,
+        sadness: postInfo.sadness,
+        disgust: postInfo.disgust,
+        anger: postInfo.anger,
+        shame: postInfo.shame,
+        guilt: postInfo.guilt,
+        surprise: postInfo.surprise
+      }
     };
   }
 
@@ -114,7 +130,7 @@ export class x {
     try {
       await page.goto(url, { timeout: 10000, waitUntil: 'networkidle2' });
       await page.waitForSelector(this.selectors.TWEET_POST, { timeout: 4000 });
-      return await this.extractPostContent(page, url);
+      return await this.extractPostContent(page, url); // Null if no text or photos found
     } catch (err) {
       console.error(`Error getting post content for X -> ${username} - ${id}: ${err}`);
       return null;
@@ -151,6 +167,11 @@ export class x {
       }, TWEET_TEXT, baseUrl);
   
       const photos = await page.$$eval(`${TWEET_POST} ${TWEET_PHOTO} img`, imgs => imgs.map(img => img.src));
+
+      if (!text) {
+        console.log('The post text could not be found.');
+        return null;
+      }
 
       return { text, photos };
     } catch (err) {

@@ -28,18 +28,20 @@ export const runAISentimentAnalysis = async (postText) => {
     - Responde únicamente en formato JSON valido. Utiliza esta plantilla específica:
       {
         "general_summary": "<text>",
-        "joy": <value>,
-        "love": <value>,
-        "hope": <value>,
-        "pride": <value>,
-        "nostalgia": <value>,
-        "fear": <value>,
-        "sadness": <value>,
-        "disgust": <value>,
-        "anger": <value>,
-        "shame": <value>,
-        "guilt": <value>,
-        "surprise": <value>
+        "emotion_tags": {
+          "joy": <value>,
+          "love": <value>,
+          "hope": <value>,
+          "pride": <value>,
+          "nostalgia": <value>,
+          "fear": <value>,
+          "sadness": <value>,
+          "disgust": <value>,
+          "anger": <value>,
+          "shame": <value>,
+          "guilt": <value>,
+          "surprise": <value>
+        }
       }`;
 
   const prompt = `Texto para analizar: "${postText}"`;
@@ -51,9 +53,6 @@ export const runAISentimentAnalysis = async (postText) => {
     system: system,
     maxTokens: 500,
     temperature: 0.3,
-    topP: 0.9,
-    presencePenalty: 1, // It affects the likelihood of the model to repeat information that is already in the prompt. CHECK
-    frequencyPenalty: 0.0, // It affects the likelihood of the model to repeatedly use the same words or phrases.
     maxRetries: 0, // Disable retries
   });
 

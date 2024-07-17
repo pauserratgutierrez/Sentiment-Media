@@ -18,15 +18,26 @@ const xInstance = new x();
 // });
 
 // Route: Get Twitter post contents
-app.get('/api/getPostContents', async (req, res) => {
+app.get('/api/twitter/post', async (req, res) => {
   const { postUrl } = req.query;
   if (!postUrl) return res.status(400).send({ error: 'Missing required fields!', fields: ['postUrl'] });
 
-  const postContent = await xInstance.getPostSingleContent(postUrl);
+  const postContent = await xInstance.getPostSingle(postUrl);
   if (!postContent) return res.status(400).send({ error: 'The post content could not be found' });
 
   console.log(`Returning post content for X -> ${postUrl}...`);
-  return res.send({ twitter: { postUrl }, data: { postContent } });
+  return res.send(postContent);
+});
+
+// Route: Get Twitter cached post contents
+app.get('/api/twitter/posts', async (req, res) => {
+  const { page, limit } = req.query;
+  const postList = await xInstance.getPosts(page, limit);
+
+  if (!postList) return res.status(400).send({ error: 'The post list could not be found' });
+
+  console.log(`Returning post list for X...`);
+  return res.send({ twitter: { page, limit }, data: { postList } });
 });
 
 // Global error handler middleware

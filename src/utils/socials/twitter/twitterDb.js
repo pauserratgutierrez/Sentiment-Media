@@ -86,21 +86,8 @@ export const saveNewPostToDb = async (platformId, username, id, content) => {
 };
 
 export const saveSentimentAnalysisToDb = async (postId, sentimentAnalysis) => {
-  const { 
-    general_summary,
-    joy,
-    love,
-    hope,
-    pride,
-    nostalgia,
-    fear,
-    sadness,
-    disgust,
-    anger,
-    shame,
-    guilt,
-    surprise
-  } = sentimentAnalysis;
+  const { general_summary } = sentimentAnalysis;
+  const { joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise } = sentimentAnalysis.emotion_tags;
 
   const connection = await getConnection();
   try {
