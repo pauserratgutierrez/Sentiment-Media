@@ -1,6 +1,6 @@
 import { getConnection, query } from '../../db/dbConn.js';
 
-// Retrieve post content from the database
+// Retrieve 1 specific post from the database
 export const getPostInfoFromDb = async (platformId, username, id) => {
   const connection = await getConnection();
   try {
@@ -19,6 +19,31 @@ export const getPostInfoFromDb = async (platformId, username, id) => {
     return resp;
   } catch (err) {
     console.error(`Error getting post info from DB: ${err}`);
+    return [];
+  } finally {
+    connection.release();
+  }
+};
+
+// Retrieve multiple posts from the database
+export const getPostsFromDb = async (platformId, limit, offset) => {
+  const connection = await getConnection();
+  try {
+    // Select from social_posts where platform_id = platformId, cache_flag = 1, order by last_checked_at desc, limit = limit, offset = offset
+    const posts = await query(
+      `SELECT sp.*, spi.image_url, asa.*
+      FROM social_posts sp
+      LEFT JOIN social_posts_images spi ON sp.id = spi.post_id
+      LEFT JOIN ai_sentiment_analysis asa ON sp.id = asa.post_id
+      WHERE sp.platform_id = ? AND sp.cache_flag = 1
+      ORDER BY sp.last_checked_at DESC
+      LIMIT ? OFFSET ?`,
+      [platformId, limit, offset.toString()], // Offset must be a string to work properly in mysql2/promises!
+      connection
+    );
+    return posts;
+  } catch (err) {
+    console.error(`Error getting posts from DB: ${err}`);
     return [];
   } finally {
     connection.release();

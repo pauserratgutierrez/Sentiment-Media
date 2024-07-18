@@ -1,4 +1,4 @@
-import { getPostInfoFromDb, isDataDifferent, saveNewPostToDb, updateDbWithNewData, updateCacheFlag, saveSentimentAnalysisToDb } from './twitterDb.js';
+import { getPostInfoFromDb, getPostsFromDb, isDataDifferent, saveNewPostToDb, updateDbWithNewData, updateCacheFlag, saveSentimentAnalysisToDb } from './twitterDb.js';
 import { runAISentimentAnalysis } from '../../ai/vercelAI.js';
 import { getPage } from '../../browser/helper.js';
 
@@ -39,6 +39,41 @@ export class x {
       }
     } catch (err) {
       console.error(`Error processing post: ${err}`);
+    }
+  }
+
+  // Get a list of posts from the DB
+  async getPosts(page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+    try {
+      const posts = await getPostsFromDb(this.platformId, limit, offset); // Returns only posts with cache_flag = 1! So always fresh data only
+      if (posts.length === 0) return null;
+
+      // Do a handleExistingPost for each post because data is always fresh
+      const postList = await Promise.all(posts.map(async post => {
+        // Use the already post fetched from the DB to avoid fetching it again
+        const postInfoDb = [post];
+        const { username, post_id } = post;
+        return await this.handleExistingPost(postInfoDb, username, post_id);
+      }));
+
+      return postList.map((post, idx) => {
+        return {
+          social: 'twitter',
+          post: {
+            url: `https://x.com/${posts[idx].username}/status/${posts[idx].post_id}`,
+            username: posts[idx].username,
+            content: {
+              text: post.text,
+              photos: post.photos
+            },
+            sentimentAnalysis: post.sentimentAnalysis
+          }
+        };
+      });
+    } catch (err) {
+      console.error(`Error getting post list: ${err}`);
+      return null;
     }
   }
 

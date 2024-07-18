@@ -1,7 +1,7 @@
 {
   "name": "sentiment-media",
   "version": "1.0.0",
-  "description": "An AI cappable of analysing sentiment from a given Twitter user",
+  "description": "An AI cappable of analysing sentiment from a given Twitter post",
   "main": "src/app.js",
   "scripts": {
     "start": "node --watch --env-file=.env ."
@@ -27,9 +27,9 @@
   "homepage": "https://github.com/pauserratgutierrez/Sentiment-Media#readme",
   "dependencies": {
     "@ai-sdk/openai": "^0.0.36",
-    "ai": "^3.2.22",
+    "ai": "^3.2.29",
     "express": "^4.19.2",
-    "mysql2": "^3.10.2",
-    "puppeteer": "^22.13.0"
+    "mysql2": "^3.10.3",
+    "puppeteer": "^22.13.1"
   }
 }

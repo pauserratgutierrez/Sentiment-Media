@@ -31,7 +31,7 @@ export async function query(sql, params, connection = null) {
 
 export async function getConnection() {
   return await pool.getConnection();
-}
+};
 
 export async function closePool() {
   try {
