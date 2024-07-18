@@ -1,7 +1,7 @@
 import express from 'express';
 import { CONFIG } from './config.js';
 import { x } from './utils/socials/twitter/twitter.js';
-import { initializeBrowser, closeBrowser } from './utils/browser/helper.js';
+import { initializeBrowserPool, closeBrowserPool, getPageFromPool } from './utils/browser/helper.js';
 
 // Server setup
 const app = express();
@@ -51,16 +51,16 @@ app.use((err, req, res, next) => {
 
 app.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);
-  global.BROWSER = await initializeBrowser();
+  await initializeBrowserPool();
 });
 
 // Handle app termination
 process.on('SIGINT', async () => {
-  await closeBrowser();
+  await closeBrowserPool();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  await closeBrowser();
+  await closeBrowserPool();
   process.exit(0);
 });

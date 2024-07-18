@@ -1,60 +1,43 @@
 import puppeteer from 'puppeteer';
 
-let browser;
+let browserPool = [];
 
-export const initializeBrowser = async () => {
-  if (!browser) {
-    try {
-      console.log('Launching a new browser instance...');
-      browser = await puppeteer.launch({
-        headless: true,
-        args: [
-          // '--no-sandbox',
-          // '--disable-setuid-sandbox',
-          // '--disable-dev-shm-usage',
-          // '--disable-accelerated-2d-canvas',
-          // '--disable-gpu',
-          `--window-size=1920,1080`
-        ],
-        timeout: 10000
-      });
-      console.log('Browser instance launched!');
-    } catch (err) {
-      console.error(`Error launching the browser instance: ${err}`);
-      throw err;
-    }
+export const initializeBrowserPool = async () => {
+  for (let i = 0; i < CONFIG.BROWSER.POOL_SIZE; i++) {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--disable-gpu',
+        `--window-size=1920,1080`
+      ],
+      timeout: 10000
+    });
+    browserPool.push(browser);
   }
-
-  return browser;
+  console.log(`Initialized browser pool with ${CONFIG.BROWSER.POOL_SIZE} instances`);
 };
 
-export const getPage = async () => {
-  try {
-    const browserInstance = await initializeBrowser();
-    const page = await browserInstance.newPage();
-    await page.setDefaultTimeout(10000);
-    return page;
-  } catch (err) {
-    console.error(`Error creating a new page: ${err}`);
-    throw err;
-  }
+export const getPageFromPool = async () => {
+  const browser = browserPool[Math.floor(Math.random() * CONFIG.BROWSER.POOL_SIZE)];
+  const page = await browser.newPage();
+  await page.setDefaultTimeout(10000);
+  return page;
 };
 
-export const closeBrowser = async () => {
-  if (browser) {
-    try {
-      console.log('Closing the browser instance...');
-      await browser.close();
-      browser = null;
-    } catch (err) {
-      console.error(`Error closing the browser instance: ${err}`);
-    }
+export const closeBrowserPool = async () => {
+  for (const browser of browserPool) {
+    await browser.close();
   }
+  browserPool = [];
 };
 
 // Handle app termination
 const handleAppTermination = async () => {
-  await closeBrowser();
+  await closeBrowserPool();
   process.exit(0);
 };
 

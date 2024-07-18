@@ -1,6 +1,6 @@
 import { getPostInfoFromDb, getPostsFromDb, isDataDifferent, saveNewPostToDb, updateDbWithNewData, updateCacheFlag, saveSentimentAnalysisToDb } from './twitterDb.js';
 import { runAISentimentAnalysis } from '../../ai/vercelAI.js';
-import { getPage } from '../../browser/helper.js';
+import { getPageFromPool } from '../../browser/helper.js';
 
 export class x {
   constructor() {
@@ -161,7 +161,7 @@ export class x {
 
   async fetchAndProcessPostSingleContent(username, id) {
     const url = `https://x.com/${username}/status/${id}`;
-    const page = await getPage();
+    const page = await getPageFromPool();
     try {
       await page.goto(url, { timeout: 10000, waitUntil: 'networkidle2' });
       await page.waitForSelector(this.selectors.TWEET_POST, { timeout: 4000 });
