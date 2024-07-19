@@ -4,7 +4,7 @@
   "description": "An AI cappable of analysing sentiment from a given Twitter post",
   "main": "src/app.js",
   "scripts": {
-    "start": "node --watch --env-file=.env ."
+    "start": "node --env-file=.env ."
   },
   "type": "module",
   "repository": {
@@ -28,8 +28,10 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.36",
     "ai": "^3.2.29",
+    "cheerio": "^1.0.0-rc.12",
     "express": "^4.19.2",
     "mysql2": "^3.10.3",
-    "puppeteer": "^22.13.1"
+    "puppeteer": "^22.13.1",
+    "puppeteer-cluster": "^0.24.0"
   }
 }
