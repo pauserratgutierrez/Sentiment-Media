@@ -55,14 +55,14 @@ export const initializeCluster = async () => {
           '--enable-features=NetworkService,NetworkServiceInProcess',
           '--force-color-profile=srgb'
         ],
-        timeout: 5000
+        timeout: 10000
       }
     });
 
     cluster.task(async ({ page, data: { url, selector } }) => {
       try {
-        await page.goto(url, { timeout: 2500, waitUntil: 'networkidle2' }); // Possible values: load, domcontentloaded, networkidle0, networkidle2
-        await page.waitForSelector(selector, { timeout: 2500 });
+        await page.goto(url, { timeout: 6000, waitUntil: 'networkidle2' }); // Possible values: load, domcontentloaded, networkidle0, networkidle2
+        await page.waitForSelector(selector, { timeout: 3000 });
         return await page.content();
       } catch (error) {
         console.error(`Error in cluster task for URL ${url}:`, error);

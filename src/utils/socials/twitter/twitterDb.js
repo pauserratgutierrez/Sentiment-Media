@@ -27,6 +27,8 @@ export const getPostInfoFromDb = async (platformId, username, id) => {
 
 // Retrieve multiple posts from the database
 export const getPostsFromDb = async (platformId, limit, offset) => {
+  if (limit > 25) limit = 25;
+  
   const connection = await getConnection();
   try {
     // Select from social_posts where platform_id = platformId, cache_flag = 1, order by last_checked_at desc, limit = limit, offset = offset

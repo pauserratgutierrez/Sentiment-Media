@@ -1,4 +1,4 @@
 - If the post from twitter is deleted, delete
 - If the twitter post is hidden or private
 
-Puppeteer is creating new "Google Chrome for Testing" instances every time I refresh (--watch flag) or on every page request! These pages aren't being closed on program exit!
+- Ask the user to provide an OpenAI GPT-4o API KEY!
