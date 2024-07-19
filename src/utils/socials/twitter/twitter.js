@@ -11,7 +11,7 @@ export class x {
     this.platformId = 1; // 1 is the ID for 'twitter' in the DB
   }
 
-  // https://x.com/ceciarmy/status/1812483540421910626
+  // https://x.com/username/status/000000...
   async getPostSingle(postUrl) {
     const { username, id } = this.extractUrlInfo(postUrl);
     if (!username || !id) return null;
@@ -212,48 +212,6 @@ export class x {
     }
   }
 };
-
-
-  // async extractPostContent(page, baseUrl) {
-  //   console.log(`Extracting post content from ${baseUrl}...`);
-  //   const { TWEET_POST, TWEET_TEXT, TWEET_PHOTO } = this.selectors;
-  //   try {
-  //     const text = await page.$eval(TWEET_POST, (el, tweetTextSelector, baseUrl) => {
-  //       const tweetTextElement = el.querySelector(tweetTextSelector);
-  //       if (!tweetTextElement) return null;
-  
-  //       // Extract text with links and replace img tags with their alt text (emojis)
-  //       const extractTextWithLinks = node => {
-  //         if (node.nodeType === Node.TEXT_NODE) return node.textContent;
-  //         if (node.nodeType === Node.ELEMENT_NODE) {
-  //           if (node.tagName === 'A') {
-  //             const absoluteUrl = new URL(node.getAttribute('href'), baseUrl).href;
-  //             return `<a href="${absoluteUrl}">${node.textContent}</a>`;
-  //           }
-  //           if (node.tagName === 'IMG') {
-  //             return node.alt; // Replace image with its alt text (emoji)
-  //           }
-  //           return Array.from(node.childNodes).map(extractTextWithLinks).join('');
-  //         }
-  //         return null;
-  //       };
-  
-  //       return extractTextWithLinks(tweetTextElement);
-  //     }, TWEET_TEXT, baseUrl);
-  
-  //     const photos = await page.$$eval(`${TWEET_POST} ${TWEET_PHOTO} img`, imgs => imgs.map(img => img.src));
-
-  //     if (!text) {
-  //       console.log('The post text could not be found.');
-  //       return null;
-  //     }
-
-  //     return { text, photos };
-  //   } catch (err) {
-  //     console.error(`Error extracting post content: ${err}`);
-  //     return null;
-  //   }
-  // }
 
   // async getPostContents(username, startIdx = 0, postsNum = 1) {
   //   const url = `https://x.com/${username}`;

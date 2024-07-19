@@ -9,7 +9,7 @@ export const initializeCluster = async () => {
     console.log('Initializing Puppeteer cluster...');
     cluster = await Cluster.launch({
       concurrency: Cluster.CONCURRENCY_CONTEXT,
-      maxConcurrency: 2, // Lower concurrency for stability
+      maxConcurrency: 3, // Lower concurrency for stability
       puppeteerOptions: {
         headless: true,
         args: [
@@ -19,13 +19,11 @@ export const initializeCluster = async () => {
           '--disable-accelerated-2d-canvas',
           '--disable-gpu',
           // '--single-process',
-          '--no-zygote',
           '--disable-background-networking',
           '--disable-background-timer-throttling',
           '--disable-breakpad',
           '--disable-client-side-phishing-detection',
           '--disable-default-apps',
-          '--disable-dev-shm-usage',
           '--disable-extensions',
           '--disable-hang-monitor',
           '--disable-popup-blocking',
@@ -38,18 +36,33 @@ export const initializeCluster = async () => {
           '--enable-automation',
           '--password-store=basic',
           '--use-mock-keychain',
-          '--no-sandbox',
           '--disable-software-rasterizer',
-          '--window-size=1920,1080'
+          '--no-zygote',
+          '--disable-infobars',
+          '--disable-blink-features=AutomationControlled',
+          '--disable-component-extensions-with-background-pages',
+          '--mute-audio',
+          '--window-size=1280,800', // Moderate window size
+          '--window-position=0,0',
+          '--ignore-certificate-errors',
+          '--ignore-certificate-errors-skip-list',
+          '--hide-scrollbars',
+          '--disable-notifications',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+          '--disable-ipc-flooding-protection',
+          '--disable-renderer-backgrounding',
+          '--enable-features=NetworkService,NetworkServiceInProcess',
+          '--force-color-profile=srgb'
         ],
-        timeout: 10000
+        timeout: 5000
       }
     });
 
     cluster.task(async ({ page, data: { url, selector } }) => {
       try {
-        await page.goto(url, { timeout: 6000, waitUntil: 'networkidle2' });
-        await page.waitForSelector(selector, { timeout: 3000 });
+        await page.goto(url, { timeout: 2500, waitUntil: 'networkidle2' }); // Possible values: load, domcontentloaded, networkidle0, networkidle2
+        await page.waitForSelector(selector, { timeout: 2500 });
         return await page.content();
       } catch (error) {
         console.error(`Error in cluster task for URL ${url}:`, error);
