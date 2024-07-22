@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Twitter Sentiment Analysis</title>
+    <link rel='stylesheet' href='/public/styles.css'>
+</head>
+
+<body>
+  <header>
+    <div class='container'>
+      <a href='/' class='header-logo-container'>
+        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg>
+        Sentiment Analyzer
+      </a>
+    </div>
+    <div class='container'>
+      <nav>
+        <ul>
+          <li><a href=''>Analyse</a></li>
+          <li><a href='/more'>How it works</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h1>Analyse Twitter Post Sentiment</h1>
+      <h2>Enter a Twitter post URL and get instant sentiment analysis!</h2>
+      <form action='/api/twitter/post' method='POST'>
+        <input type='url' name='url' placeholder='https://x.com/X/status/1814456445712379915' required>
+        <button type='submit'>Analyze</button>
+      </form>
+    </section>
+
+    <section class='analysis'>
+      <div class='post-twitter'>
+        <div class='post-info'>
+          <span id='username'>@username</span>
+          <a href='#' id='post-url'>View Tweet</a>
+        </div>
+        <div class='post-content'>
+          <p id='post-content'>Provide a Tweet link to see more!</p>
+      </div>
+
+      <hr>
+
+      <div class='post-analysis'>
+        <div class='generals'>
+          <p id='general_emotion'>❓</p> <!-- 1 -> 👍, 2 -> 👎, 0 -> 😐 -->
+          <h3 id='general_summary'>...</h3>
+        </div>
+        <div id='emotion_tags'>
+          <span class='emotion_tag' id='joy'>Joy 🤩<span class='result'>/10</span></span> <!-- 0/10 -->
+          <span class='emotion_tag' id='love'>Love ❤️<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='hope'>Hope 🙏<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='pride'>Pride 🏆<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='nostalgia'>Nostalgia ☘️<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='fear'>Fear 😨<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='sadness'>Sadness 😢<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='disgust'>Disgust 🤢<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='anger'>Anger 😡<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='shame'>Shame 😳<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='guilt'>Guilt 😔<span class='result'>/10</span></span>
+          <span class='emotion_tag' id='surprise'>Surprise 😲<span class='result'>/10</span></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class='container'>
+      <small><a href='https://github.com/midudev/hackaton-vercel-2024/issues' target='_blank'>Hackaton Vercel 2024</a></small>
+      <small>Developed by <a href='https://github.com/pauserratgutierrez/Sentiment-Media' target='_blank'>Pau Serrat Gutiérrez</a></small>
+    </div>
+</body>
+</html>

@@ -9,7 +9,13 @@ const port = process.env.PORT || CONFIG.SERVER.PORT;
 
 app.use(express.json());
 
+app.use(express.static('public'));
+
 const xInstance = new x();
+
+app.get('/', (req, res) => {
+  res.sendFile('landing/index.html', { root: 'public' });
+});
 
 // Route: Get Twitter post contents
 app.get('/api/twitter/post', async (req, res) => {
@@ -29,6 +35,11 @@ app.get('/api/twitter/posts', async (req, res) => {
   if (!postList) return res.status(400).send({ error: 'The post list could not be found' });
   console.log(`Returning post list for X...`);
   return res.send({ twitter: { page: page, limit: limit }, data: { postList } });
+});
+
+// For any other route, send 404
+app.use((req, res) => {
+  res.status(404).send({ error: 'Not found' });
 });
 
 // Global error handler middleware
