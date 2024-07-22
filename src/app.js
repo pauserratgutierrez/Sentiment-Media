@@ -14,7 +14,11 @@ app.use(express.static('public'));
 const xInstance = new x();
 
 app.get('/', (req, res) => {
-  res.sendFile('landing/index.html', { root: 'public' });
+  res.sendFile('analyse.html', { root: 'public' });
+});
+
+app.get('/list', (req, res) => {
+  res.sendFile('list.html', { root: 'public' });
 });
 
 // Route: Get Twitter post contents
