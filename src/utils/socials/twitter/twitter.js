@@ -144,6 +144,7 @@ export class x {
   extractSentimentAnalysis(postInfo) {
     return {
       general_summary: postInfo.general_summary,
+      general_emotion: postInfo.general_emotion,
       emotion_tags: {
         joy: postInfo.joy,
         love: postInfo.love,

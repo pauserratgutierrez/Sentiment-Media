@@ -113,7 +113,7 @@ export const saveNewPostToDb = async (platformId, username, id, content) => {
 };
 
 export const saveSentimentAnalysisToDb = async (postId, sentimentAnalysis) => {
-  const { general_summary } = sentimentAnalysis;
+  const { general_summary, general_emotion } = sentimentAnalysis;
   const { joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise } = sentimentAnalysis.emotion_tags;
 
   const connection = await getConnection();
@@ -125,8 +125,8 @@ export const saveSentimentAnalysisToDb = async (postId, sentimentAnalysis) => {
 
     // Insert new sentiment analysis
     await query(
-      `INSERT INTO ai_sentiment_analysis (post_id, general_summary, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise) VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)`,
-      [postId, general_summary, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise],
+      `INSERT INTO ai_sentiment_analysis (post_id, general_summary, general_emotion, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [postId, general_summary, general_emotion, joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, surprise],
       connection
     );
 

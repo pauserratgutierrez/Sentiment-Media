@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS ai_sentiment_analysis (
   id INT AUTO_INCREMENT PRIMARY KEY,
   post_id INT NOT NULL,
   general_summary TEXT NOT NULL,
+  general_emotion INT DEFAULT 0, -- 0 -> Neutral, 1 -> Positive, 2 -> Negative
   joy FLOAT DEFAULT 0,
   love FLOAT DEFAULT 0,
   hope FLOAT DEFAULT 0,
