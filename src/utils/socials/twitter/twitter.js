@@ -55,15 +55,14 @@ export class x {
       const postList = await Promise.all(posts.map(async post => {
         // Use the already post fetched from the DB to avoid fetching it again
         const postInfoDb = [post];
-        const { username, post_id } = post;
-        return await this.handleExistingPost(postInfoDb, username, post_id);
+        return await this.handleExistingPost(postInfoDb, postInfoDb[0].username, postInfoDb[0].post_id);
       }));
 
       return postList.map((post, idx) => {
         return {
           social: 'twitter',
           post: {
-            url: `https://x.com/${posts[idx].username}/status/${posts[idx].post_id}`,
+            url: posts[idx].post_url, // The post id should be from the column, not the id of the post in the db!
             username: posts[idx].username,
             content: {
               text: post.text,
