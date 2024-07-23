@@ -28,7 +28,6 @@ export class x {
       }
 
       return {
-        social: 'twitter',
         post: {
           url: postUrl,
           username,
@@ -36,7 +35,13 @@ export class x {
             text: result.text,
             photos: result.photos
           },
-          sentimentAnalysis: result.sentimentAnalysis
+          sentimentAnalysis: result.sentimentAnalysis,
+          metadata: {
+            social: 'twitter',
+            // check_count is only available if the post is already in the DB
+            check_count: postInfoDb.length > 0 ? postInfoDb[0].check_count + 1 : 1,
+            cache_flag: postInfoDb.length > 0 ? postInfoDb[0].cache_flag : 0
+          }
         }
       }
     } catch (err) {
@@ -60,7 +65,6 @@ export class x {
 
       return postList.map((post, idx) => {
         return {
-          social: 'twitter',
           post: {
             url: posts[idx].post_url, // The post id should be from the column, not the id of the post in the db!
             username: posts[idx].username,
@@ -68,7 +72,12 @@ export class x {
               text: post.text,
               photos: post.photos
             },
-            sentimentAnalysis: post.sentimentAnalysis
+            sentimentAnalysis: post.sentimentAnalysis,
+            metadata: {
+              social: 'twitter',
+              check_count: posts[idx].check_count,
+              cache_flag: posts[idx].cache_flag
+            }
           }
         };
       });

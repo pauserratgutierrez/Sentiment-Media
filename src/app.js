@@ -38,7 +38,7 @@ app.get('/api/twitter/posts', async (req, res) => {
   const postList = await xInstance.getPosts(page, limit);
   if (!postList) return res.status(400).send({ error: 'The post list could not be found' });
   console.log(`Returning post list for X...`);
-  return res.send({ twitter: { page: page, limit: limit }, data: { postList } });
+  return res.send({ pagination: { page: page, limit: limit }, data: { postList } });
 });
 
 // For any other route, send 404

@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const postContent = document.getElementById('post-content');
     const postUrl = document.getElementById('post-url');
     const username = document.getElementById('username');
+    const checkCount = document.getElementById('check_count');
+    const cacheFlag = document.getElementById('cache_flag');
     const generalEmotion = document.getElementById('general_emotion');
     const generalSummary = document.getElementById('general_summary');
     const emotionTags = {
@@ -60,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
       postUrl.href = data.post.url;
       postUrl.target = '_blank';
       username.textContent = `@${data.post.username}`;
+      checkCount.textContent = `🔎 ${data.post.metadata.check_count}`;
+      cacheFlag.textContent = data.post.metadata.cache_flag ? '⚡️ Cached' : '⚡️ Live';
 
       const sentimentAnalysis = data.post.sentimentAnalysis;
       generalEmotion.textContent = getEmotionEmoji(sentimentAnalysis.general_emotion);
