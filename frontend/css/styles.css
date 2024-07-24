@@ -255,6 +255,9 @@ main {
             gap: var(--gap0);
             align-items: center;
             font-weight: 600;
+            background-color: var(--accent-blue-transparent);
+            padding: 4px 8px;
+            border-radius: 10px;
 
             span.result {
               color: var(--accent-blue);

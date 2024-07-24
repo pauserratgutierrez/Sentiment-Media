@@ -16,7 +16,7 @@ export class x {
     const { username, id } = this.extractUrlInfo(postUrl);
     if (!username || !id) return null;
 
-    console.log(`Getting post content for X -> ${postUrl}...\nExtracting username: ${username}, id: ${id}`);
+    // console.log(`Getting post content for X -> ${postUrl}...\nExtracting username: ${username}, id: ${id}`);
 
     try {
       const postInfoDb = await getPostInfoFromDb(this.platformId, username, id);
@@ -105,10 +105,10 @@ export class x {
     const sentimentAnalysis = this.extractSentimentAnalysis(postInfoDb[0]);
 
     if (postText.cache_flag) {
-      console.log(`Using cached data from DB for post...`);
+      // console.log(`Using cached data from DB for post...`);
       return { text: postText.content, photos: postImages, sentimentAnalysis };
     } else {
-      console.log(`Post data is stale, fetching new data from twitter...`);
+      // console.log(`Post data is stale, fetching new data from twitter...`);
       const newData = await this.fetchAndProcessPostSingleContent(username, id);
       if (!newData) return null;
       return await this.updatePostIfNecessary(postText, newData, postImages, sentimentAnalysis);

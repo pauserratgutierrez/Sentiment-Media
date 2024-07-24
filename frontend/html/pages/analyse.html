@@ -3,8 +3,8 @@
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <title>Twitter Sentiment Analysis</title>
-  <link rel='stylesheet' href='/styles.css'>
+  <title>Sentiment Analysis</title>
+  <link rel='stylesheet' href='css/styles.css'>
 </head>
 
 <body>
@@ -14,13 +14,13 @@
       <h1>Analyse Twitter Post Sentiment</h1>
       <h2>Enter a Twitter post URL and get instant sentiment analysis!</h2>
       <form id='sentiment-form'>
-        <input type='url' name='url' placeholder='https://x.com/X/status/1814456445712379915' required>
+        <input type='url' name='url' placeholder='Paste a Twitter post URL here!' required>
         <button type='submit'>Analyze</button>
       </form>
     </section>
-    <div id='analysis'></div>
+    <div id='post-single'></div>
   </main>
   <div id='footer'></div>
-  <script src='/main.js'></script>
+  <script type='module' src='js/main.js'></script>
 </body>
 </html>

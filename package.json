@@ -2,7 +2,7 @@
   "name": "sentiment-media",
   "version": "1.0.0",
   "description": "An AI cappable of analysing sentiment from a given Twitter post",
-  "main": "src/app.js",
+  "main": "backend/app.js",
   "scripts": {
     "start": "node --env-file=.env ."
   },
@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/pauserratgutierrez/Sentiment-Media#readme",
   "dependencies": {
-    "@ai-sdk/openai": "^0.0.36",
-    "ai": "^3.2.33",
+    "@ai-sdk/openai": "^0.0.39",
+    "ai": "^3.2.35",
     "cheerio": "^1.0.0-rc.12",
     "express": "^4.19.2",
     "mysql2": "^3.10.3",

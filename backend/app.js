@@ -9,16 +9,16 @@ const port = process.env.PORT || CONFIG.SERVER.PORT;
 
 app.use(express.json());
 
-app.use(express.static('public'));
+app.use(express.static('frontend'));
 
 const xInstance = new x();
 
 app.get('/', (req, res) => {
-  res.sendFile('analyse.html', { root: 'public' });
+  res.sendFile('analyse.html', { root: 'frontend/html/pages/' });
 });
 
 app.get('/list', (req, res) => {
-  res.sendFile('list.html', { root: 'public' });
+  res.sendFile('list.html', { root: 'frontend/html/pages/' });
 });
 
 // Route: Get Twitter post contents
@@ -27,7 +27,7 @@ app.get('/api/twitter/post', async (req, res) => {
   if (!url) return res.status(400).send({ error: 'Missing required fields!', fields: ['url'] });
   const postContent = await xInstance.getPostSingle(url);
   if (!postContent) return res.status(400).send({ error: 'The post content could not be found' });
-  console.log(`Returning post content for X -> ${url}...`);
+  // console.log(`Returning post content for X -> ${url}...`);
   return res.send(postContent);
 });
 
@@ -37,7 +37,7 @@ app.get('/api/twitter/posts', async (req, res) => {
   if (!page || !limit) return res.status(400).send({ error: 'Missing required fields!', fields: ['page', 'limit'] });
   const postList = await xInstance.getPosts(page, limit);
   if (!postList) return res.status(400).send({ error: 'The post list could not be found' });
-  console.log(`Returning post list for X...`);
+  // console.log(`Returning post list for X...`);
   return res.send({ pagination: { page: page, limit: limit }, data: { postList } });
 });
 
