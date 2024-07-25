@@ -73,15 +73,15 @@ INSERT IMG OF THE JSON RESPONSE HERE TOO
 1. Clone the repository:
 
 2. Install dependencies:
-  ```npm install```
+  ``npm install``
 
 3. Set up environment variables in a `.env` file:
-  ```DB_HOST=<your-database-host>
+  ``DB_HOST=<your-database-host>
   DB_USER=<your-database-user>
   DB_PASSWORD=<your-database-password>
   DB_DATABASE=<your-database-name>
   DB_PORT=<your-database-port>
-  OPENAI_API_KEY=<your-openai-api-key>```
+  OPENAI_API_KEY=<your-openai-api-key>``
 
 4. Run database migrations:
   ```mysql -u <username> -p <database_name> < db-migration.sql```
