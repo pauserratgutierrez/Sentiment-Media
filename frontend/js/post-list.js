@@ -12,6 +12,8 @@ export function initializePostList(page) {
       postList.innerHTML = ''; // Clear existing posts
 
       if (data.data && data.data.postList.length > 0) {
+        postsShown = data.data.postList.length; // Actual number of posts shown
+
         data.data.postList.forEach(postData => {
           const postDiv = document.createElement('div');
           postDiv.classList.add('post-analized-container');
@@ -26,7 +28,7 @@ export function initializePostList(page) {
         // Update pagination information
         const totalPosts = data.pagination.total_count;
         const totalPages = Math.ceil(totalPosts / limit);
-        document.getElementById('limit-posts').textContent = limit;
+        document.getElementById('limit-posts').textContent = postsShown; // Actual number of posts being shown
         document.getElementById('total-posts').textContent = totalPosts;
         document.getElementById('current-page').textContent = page;
         document.getElementById('total-pages').textContent = totalPages;
