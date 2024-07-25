@@ -1,5 +1,7 @@
 # Sentiment Media
 Sentiment Media is an AI-powered application designed to analyze sentiments from Twitter posts. It leverages a cost-effective and fast AI model to categorize and score emotions present in social media content. The project is structured with a clear separation between the frontend and backend, with communication facilitated through an internal API.
+![image](https://github.com/user-attachments/assets/84c0e1a2-cfdc-451b-a8c1-2bde1b6b267b)
+![image](https://github.com/user-attachments/assets/874116f2-c6f1-4b42-b4c3-1d022a133414)
 
 ## Project Structure
 - **Frontend**: Contains HTML, CSS, and JavaScript files for the user interface. It uses native technologies without any frontend frameworks.
@@ -50,10 +52,11 @@ Sentiment Media is an AI-powered application designed to analyze sentiments from
   - When querying the same Twitter post, if the content in the database is flagged as up-to-date, the app uses it. Otherwise, it retrieves the post info from Twitter and compares the fresh data with the stale data saved in the database. If the data is equal, it uses the saved sentiment analysis. Otherwise, a new sentiment analysis is executed with the new Twitter post content.
 
 ### API Endpoints
-- `/api/twitter/post`: Fetches a specific Twitter post's content and sentiment analysis.
-  ![JSON Response Example](path-to-image)
-- `/api/twitter/posts`: Retrieves cached posts with pagination support.
-  ![JSON Response Example](path-to-image)
+- `/api/twitter/post`: Fetches a specific Twitter post's content and sentiment analysis. Example `/api/twitter/post?url=https://x.com/midudev/status/1787465376130859511`
+![image](https://github.com/user-attachments/assets/51ee18f8-a554-4995-894f-4194d5ba9e3d)
+
+- `/api/twitter/posts`: Retrieves cached posts with pagination support. Example `http://localhost:3000/api/twitter/posts?page=2&limit=1`
+![image](https://github.com/user-attachments/assets/3244537c-2f95-4ae4-86c2-5dc0c01caae1)
 
 ## No Authentication Required
 - The application does not require user authentication for accessing the API.
