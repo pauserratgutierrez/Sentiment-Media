@@ -19,11 +19,8 @@ export function initializePostList(page) {
       if (data.data && data.data.postList.length > 0) {
         const totalPosts = data.pagination.total_count;
 
-        // Adjust the limit if it's greater than the total number of posts
-        if (limit > totalPosts) {
-          limit = totalPosts;
-          limitInput.value = limit; // Update the input value to reflect the new limit
-        }
+        // Update the max attribute of the limit input field
+        limitInput.max = totalPosts;
 
         postsShown = data.data.postList.length; // Actual number of posts shown
 
