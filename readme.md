@@ -76,6 +76,8 @@ http://85.208.21.227:2002/
 
 3. Set up environment variables in a `.env` file:
   ```
+  PRODUCTION=<boolean>
+  PORT=<your-host-port>
   DB_HOST=<your-database-host>
   DB_USER=<your-database-user>
   DB_PASSWORD=<your-database-password>
