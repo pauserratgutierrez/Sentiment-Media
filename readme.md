@@ -1,25 +1,17 @@
 # Sentiment Media
-
 Sentiment Media is an AI-powered application designed to analyze sentiments from Twitter posts. It leverages a cost-effective and fast AI model to categorize and score emotions present in social media content. The project is structured with a clear separation between the frontend and backend, with communication facilitated through an internal API.
 
 ## Project Structure
-
-The project is organized as follows:
 - **Frontend**: Contains HTML, CSS, and JavaScript files for the user interface. It uses native technologies without any frontend frameworks.
+  - Located in the `frontend` directory.
+  - Uses HTML templates, styled with CSS, and interactive elements managed by JavaScript.
+  - Serves static files and main pages from `frontend/html/pages`.
 - **Backend**: Built with Node.js and Express.js, handling API requests and interacting with the database.
-
-### Frontend
-- Located in the `frontend` directory.
-- Uses HTML templates, styled with CSS, and interactive elements managed by JavaScript.
-- Serves static files and main pages from `frontend/html/pages`.
-
-### Backend
-- Located in the `backend` directory.
-- Handles server-side logic, database interactions, and API endpoints.
-- Main entry point is `app.js`.
+  - Located in the `backend` directory.
+  - Handles server-side logic, database interactions, and API endpoints.
+  - Main entry point is `app.js`.
 
 ## Technologies Used
-
 - **Node.js**: Server-side JavaScript runtime.
 - **Express.js**: Web framework for handling routing and middleware.
 - **MySQL**: Database for storing Twitter posts and sentiment analysis results.
@@ -29,7 +21,6 @@ The project is organized as follows:
 - **Vercel AI SDK**: Facilitates interaction with the OpenAI model.
 
 ## Features
-
 ### Sentiment Analysis
 - Utilizes the `GPT-4o-mini` model from OpenAI for analyzing sentiments.
 - Categorizes emotions into joy, love, hope, pride, nostalgia, fear, sadness, disgust, anger, shame, guilt, and surprise.
@@ -69,22 +60,29 @@ The project is organized as follows:
 - Fair usage is expected!
 
 ## Installation
-
 1. Clone the repository:
 
 2. Install dependencies:
-  ```npm install```
+  ```
+  npm install
+  ```
 
 3. Set up environment variables in a `.env` file:
-  ```DB_HOST=<your-database-host>
+  ```
+  DB_HOST=<your-database-host>
   DB_USER=<your-database-user>
   DB_PASSWORD=<your-database-password>
   DB_DATABASE=<your-database-name>
   DB_PORT=<your-database-port>
-  OPENAI_API_KEY=<your-openai-api-key>```
+  OPENAI_API_KEY=<your-openai-api-key>
+  ```
 
 4. Run database migrations:
-  ```mysql -u <username> -p <database_name> < db-migration.sql```
+  ```
+  mysql -u <username> -p <database_name> < db-migration.sql
+  ```
 
 5. Start the application:
-  ```npm start```
+  ```
+  npm start
+  ```
