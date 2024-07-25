@@ -1,5 +1,9 @@
 # Sentiment Media
 Sentiment Media is an AI-powered application designed to analyze sentiments from Twitter posts. It leverages a cost-effective and fast AI model to categorize and score emotions present in social media content. The project is structured with a clear separation between the frontend and backend, with communication facilitated through an internal API.
+
+Test it now!
+http://85.208.21.227:2002/
+
 ![image](https://github.com/user-attachments/assets/84c0e1a2-cfdc-451b-a8c1-2bde1b6b267b)
 ![image](https://github.com/user-attachments/assets/874116f2-c6f1-4b42-b4c3-1d022a133414)
 
