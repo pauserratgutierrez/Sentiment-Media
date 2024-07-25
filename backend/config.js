@@ -1,6 +1,7 @@
 export const CONFIG = {
   SERVER: {
-    PORT: 3000
+    PRODUCTION: process.env.PRODUCTION === 'true',  // Check environment variable to set production mode
+    PORT: process.env.PORT || 3000
   },
   HTML_ELEMENTS: {
     X: {

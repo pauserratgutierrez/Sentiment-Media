@@ -5,7 +5,8 @@ import { initializeCluster, closeCluster } from './utils/browser/helper.js';
 
 // Server setup
 const app = express();
-const port = process.env.PORT || CONFIG.SERVER.PORT;
+const port = CONFIG.SERVER.PORT;
+const host = CONFIG.SERVER.HOST ? '0.0.0.0' : 'localhost';
 
 app.use(express.json());
 
@@ -49,8 +50,8 @@ app.use((err, req, res, next) => {
   res.status(500).send({ error: 'Something went wrong!' });
 });
 
-app.listen(port, async () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(port, host, async () => {
+  console.log(`Server is running on http://${host}:${port}`);
   await initializeCluster();
 });
 
