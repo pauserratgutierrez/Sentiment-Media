@@ -1,6 +1,5 @@
 1. Start the App:
-npm start > output.out 2>&1 &
-disown
+start_ia
 
 2. Stop the App:
 kill_ia
@@ -8,6 +7,14 @@ kill_ia
 3. Setup:
 - Go to: nano ~/.bashrc
 - Add the following at the end:
+# Function to start the Node.js application
+start_ia() {
+  cd /home/pau/Sentiment-Media
+  npm start > output.out 2>&1 &
+  disown
+  echo "Node.js application started and running in the background."
+}
+
 # Function to kill the process running "node --env-file=.env ."
 kill_ia() {
   # Find the PID of the process running "node --env-file=.env ."
