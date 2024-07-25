@@ -5,7 +5,7 @@ let currentPage = 1;
 const limit = 4; // Hardcoded limit
 
 export function initializePostList(page) {
-  fetch(`http://localhost:3000/api/twitter/posts?page=${page}&limit=${limit}`)
+  fetch(`/api/twitter/posts?page=${page}&limit=${limit}`)
     .then(response => response.json())
     .then(data => {
       const postList = document.getElementById('post-list');
