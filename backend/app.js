@@ -6,7 +6,7 @@ import { initializeCluster, closeCluster } from './utils/browser/helper.js';
 // Server setup
 const app = express();
 const port = CONFIG.SERVER.PORT;
-const host = CONFIG.SERVER.HOST ? '0.0.0.0' : 'localhost';
+const host = CONFIG.SERVER.PRODUCTION ? '0.0.0.0' : 'localhost';
 
 app.use(express.json());
 
