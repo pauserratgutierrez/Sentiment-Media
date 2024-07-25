@@ -296,7 +296,7 @@ main {
 
       /* Type number */
       &[type="number"] {
-        width: 30px;
+        width: 80px;
       }
     }
 
