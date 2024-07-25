@@ -22,6 +22,12 @@ export function initializePostList(page) {
         // Update the max attribute of the limit input field
         limitInput.max = totalPosts;
 
+        // Adjust the value attribute of the limit input field if necessary
+        if (limit > totalPosts) {
+          limit = totalPosts;
+          limitInput.value = limit; // Update the input value to reflect the new limit
+        }
+
         postsShown = data.data.postList.length; // Actual number of posts shown
 
         data.data.postList.forEach(postData => {
