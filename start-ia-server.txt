@@ -16,7 +16,7 @@ kill_ia() {
   # If the process is found, kill it
   if [ -n "$PID" ]; then
     echo "Killing process with PID $PID"
-    kill "$PID"
+    kill $PID
   else
     echo "Process not found"
   fi
