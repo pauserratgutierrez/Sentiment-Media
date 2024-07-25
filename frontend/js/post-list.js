@@ -11,6 +11,8 @@ export function initializePostList(page) {
       const postList = document.getElementById('post-list');
       postList.innerHTML = ''; // Clear existing posts
 
+      let postsShown = 0;
+
       if (data.data && data.data.postList.length > 0) {
         postsShown = data.data.postList.length; // Actual number of posts shown
 
