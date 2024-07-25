@@ -293,6 +293,11 @@ main {
       border: 1px solid var(--light-gray);
       border-radius: var(--border-radius);
       font-size: var(--text-size4);
+
+      /* Type number */
+      &[type="number"] {
+        width: 30px;
+      }
     }
 
     button {
