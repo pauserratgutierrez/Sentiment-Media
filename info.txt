@@ -1,4 +1,0 @@
-- If the post from twitter is deleted, delete
-- If the twitter post is hidden or private
-
-- Ask the user to provide an OpenAI GPT-4o API KEY!
