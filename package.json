@@ -5,8 +5,8 @@
   "main": "backend/app.js",
   "scripts": {
     "dev": "node --env-file=.env .",
-    "start": "PRODUCTION=true PORT=0001 node --env-file=.env .",
-    "production": "PRODUCTION=true PORT=0001 node --env-file=.env ."
+    "start": "PRODUCTION=true PORT=2002 node --env-file=.env .",
+    "production": "PRODUCTION=true PORT=2002 node --env-file=.env ."
   },
   "type": "module",
   "repository": {
