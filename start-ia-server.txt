@@ -1,0 +1,26 @@
+1. Start the App:
+npm start > output.out 2>&1 &
+disown
+
+2. Stop the App:
+kill_ia
+
+3. Setup:
+- Go to: nano ~/.bashrc
+- Add the following at the end:
+# Function to kill the process running "node --env-file=.env ."
+kill_ia() {
+  # Find the PID of the process running "node --env-file=.env ."
+  PID=$(pgrep -f "node --env-file=.env .")
+
+  # If the process is found, kill it
+  if [ -n "$PID" ]; then
+    echo "Killing process with PID $PID"
+    kill "$PID"
+  else
+    echo "Process not found"
+  fi
+}
+
+4. Refresh bash:
+source ~/.bashrc
