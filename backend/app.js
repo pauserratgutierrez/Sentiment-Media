@@ -17,10 +17,6 @@ app.get('/', (req, res) => {
   res.sendFile('analyse.html', { root: 'frontend/html/pages/' });
 });
 
-app.get('/list', (req, res) => {
-  res.sendFile('list.html', { root: 'frontend/html/pages/' });
-});
-
 // Route: Get Twitter post contents
 app.get('/api/twitter/post', async (req, res) => {
   const { url } = req.query;
@@ -38,12 +34,13 @@ app.get('/api/twitter/posts', async (req, res) => {
   const postList = await xInstance.getPosts(page, limit);
   if (!postList) return res.status(400).send({ error: 'The post list could not be found' });
   // console.log(`Returning post list for X...`);
-  return res.send({ pagination: { page: page, limit: limit }, data: { postList } });
+  const { posts, total_count } = postList;
+  return res.send({ pagination: { page: page, limit: limit, total_count }, data: { postList: posts } });
 });
 
-// For any other route, send 404
+// For any other route, send 404 template html file 404.html from frontend/html/pages and also set status code to 404
 app.use((req, res) => {
-  res.status(404).send({ error: 'Not found' });
+  res.status(404).sendFile('404.html', { root: 'frontend/html/pages/' });
 });
 
 // Global error handler middleware

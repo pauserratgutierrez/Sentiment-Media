@@ -32,18 +32,23 @@ export const getPostsFromDb = async (platformId, limit, offset) => {
   const connection = await getConnection();
   try {
     // Select from social_posts where platform_id = platformId, cache_flag = 1, order by last_checked_at desc, limit = limit, offset = offset
+    // Also return total count of posts maching the query (without limit and offset)
     const posts = await query(
-      `SELECT sp.*, spi.image_url, asa.*
+      `SELECT sp.*, spi.image_url, asa.*,
+      (SELECT COUNT(*) FROM social_posts WHERE platform_id = ? AND cache_flag = 1) AS total_count
       FROM social_posts sp
       LEFT JOIN social_posts_images spi ON sp.id = spi.post_id
       LEFT JOIN ai_sentiment_analysis asa ON sp.id = asa.post_id
       WHERE sp.platform_id = ? AND sp.cache_flag = 1
       ORDER BY sp.last_checked_at DESC
       LIMIT ? OFFSET ?`,
-      [platformId, limit, offset.toString()], // Offset must be a string to work properly in mysql2/promises!
+      [platformId, platformId, limit, offset.toString()], // Offset must be a string to work properly in mysql2/promises!
       connection
     );
-    return posts;
+    return {
+      posts,
+      total_count: posts.length > 0 ? posts[0].total_count : 0
+    };
   } catch (err) {
     console.error(`Error getting posts from DB: ${err}`);
     return [];

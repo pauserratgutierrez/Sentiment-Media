@@ -53,7 +53,7 @@ export class x {
   async getPosts(page = 1, limit = 10) {
     const offset = (page - 1) * limit;
     try {
-      const posts = await getPostsFromDb(this.platformId, limit, offset); // Returns only posts with cache_flag = 1! So always fresh data only
+      const { posts, total_count } = await getPostsFromDb(this.platformId, limit, offset); // Returns only posts with cache_flag = 1! So always fresh data only
       if (posts.length === 0) return null;
 
       // Do a handleExistingPost for each post because data is always fresh
@@ -63,7 +63,7 @@ export class x {
         return await this.handleExistingPost(postInfoDb, postInfoDb[0].username, postInfoDb[0].post_id);
       }));
 
-      return postList.map((post, idx) => {
+      const formattedPosts = postList.map((post, idx) => {
         return {
           post: {
             url: posts[idx].post_url, // The post id should be from the column, not the id of the post in the db!
@@ -81,6 +81,8 @@ export class x {
           }
         };
       });
+
+      return { posts: formattedPosts, total_count };
     } catch (err) {
       console.error(`Error getting post list: ${err}`);
       return null;

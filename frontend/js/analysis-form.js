@@ -1,8 +1,9 @@
-import { updatePage } from './post-single-populate.js';
+import { updatePage } from './post-twitter.js';
+import { initializePostList } from './post-list.js';
 
 export function initializeForm() {
   const form = document.getElementById('sentiment-form');
-  const postContent = document.getElementById('post-content');
+  const postContentContainer = document.getElementById('post-analized'); // Updated to use the container element
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -13,10 +14,13 @@ export function initializeForm() {
       const response = await fetch(endpoint);
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
-      updatePage(data);
+      updatePage(postContentContainer, data); // Pass the container element
+
+      // Reinitialize the post list to update recent analysis
+      initializePostList(1); // Reset to first page to show the latest data
     } catch (error) {
       console.error('Fetch error:', error);
-      postContent.textContent = 'Error retrieving post content. Please try again.';
+      postContentContainer.querySelector('.post-content').textContent = 'Error retrieving post content. Please try again.';
     }
   });
-};
+}

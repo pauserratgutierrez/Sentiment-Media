@@ -18,7 +18,16 @@
         <button type='submit'>Analyze</button>
       </form>
     </section>
-    <div id='post-single'></div>
+    <div id='post-analized'></div>
+    <section>
+      <h1>Recent Analysis</h1>
+      <h2>Showing <span id='limit-posts'>0</span>/<span id='total-posts'>0</span> (Page <span id='current-page'>0</span>/<span id='total-pages'>0</span>)</h2>
+      <form id='pagination-form'>
+        <button id='prev' type='button'>Prev</button>
+        <button id='next' type='button'>Next</button>
+      </form>
+      <div id='post-list'></div>
+    </section>
   </main>
   <div id='footer'></div>
   <script type='module' src='js/main.js'></script>
