@@ -31,7 +31,7 @@
     "cheerio": "^1.0.0-rc.12",
     "express": "^4.19.2",
     "mysql2": "^3.10.3",
-    "puppeteer": "^22.13.1",
+    "puppeteer": "^22.14.0",
     "puppeteer-cluster": "^0.24.0"
   }
 }
