@@ -2,9 +2,12 @@ import { loadComponent } from './components.js';
 import { updatePage } from './post-twitter.js';
 
 let currentPage = 1;
-const limit = 4; // Hardcoded limit
+let limit = 4; // Default limit
 
 export function initializePostList(page) {
+  const limitInput = document.getElementById('limit');
+  limit = limitInput ? parseInt(limitInput.value) : limit; // Get the limit from the input field
+
   fetch(`/api/twitter/posts?page=${page}&limit=${limit}`)
     .then(response => response.json())
     .then(data => {
@@ -53,6 +56,7 @@ export function initializePostList(page) {
 export function initializePagination() {
   const prevButton = document.getElementById('prev');
   const nextButton = document.getElementById('next');
+  const limitInput = document.getElementById('limit');
 
   // Add event listeners
   prevButton.addEventListener('click', () => {
@@ -66,4 +70,11 @@ export function initializePagination() {
     currentPage += 1;
     initializePostList(currentPage);
   });
+
+  if (limitInput) {
+    limitInput.addEventListener('change', () => {
+      currentPage = 1; // Reset to first page
+      initializePostList(currentPage);
+    });
+  }
 }
