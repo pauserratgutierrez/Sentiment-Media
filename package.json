@@ -4,9 +4,7 @@
   "description": "An AI cappable of analysing sentiment from a given Twitter post",
   "main": "backend/app.js",
   "scripts": {
-    "dev": "node --env-file=.env .",
-    "start": "PRODUCTION=true PORT=2002 node --env-file=.env .",
-    "production": "PRODUCTION=true PORT=2002 node --env-file=.env ."
+    "start": "node --env-file=.env ."
   },
   "type": "module",
   "repository": {
