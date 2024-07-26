@@ -1,3 +1,5 @@
+This project is part of a Hackaton. See more details here: https://github.com/midudev/hackaton-vercel-2024/issues/51
+
 # Sentiment Media
 Sentiment Media is an AI-powered application designed to analyze sentiments from Twitter posts. It leverages a cost-effective and fast AI model to categorize and score emotions present in social media content. The project is structured with a clear separation between the frontend and backend, with communication facilitated through an internal API.
 
